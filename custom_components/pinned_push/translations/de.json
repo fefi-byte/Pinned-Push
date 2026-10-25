@@ -40,6 +40,24 @@
             "confirm_text": "Beschriftung des ersten Knopfs.",
             "buttons": "Bis zu zwei weitere Knöpfe. Android zeigt höchstens drei Knöpfe.",
             "expire_minutes": "Wird nach dieser Zeit von allen Handys entfernt. 0 = nie."
+          },
+          "sections": {
+            "delivery": {
+              "name": "Zustellung und Ton",
+              "description": "Wie das Handy die Benachrichtigung zustellt und welchen Ton es benutzt.",
+              "data": {
+                "urgent": "Sofort zustellen",
+                "alarm_stream": "Auch bei „Nicht stören“ hörbar",
+                "channel": "Benachrichtigungskanal",
+                "importance": "Wichtigkeit des Kanals"
+              },
+              "data_description": {
+                "urgent": "Sendet mit hoher Priorität, damit ein Handy im Akkusparmodus sie sofort bekommt. Empfohlen für Xiaomi und andere Handys, die Benachrichtigungen verzögern.",
+                "alarm_stream": "Spielt den Ton über den Wecker-Kanal ab. Ersetzt den Benachrichtigungskanal.",
+                "channel": "Android-Benachrichtigungskanal, z. B. Pinned Push. Ton und Vibration lassen sich in den Android-Einstellungen ändern. Leer = Standardkanal.",
+                "importance": "Gilt nur, wenn Android den Kanal zum ersten Mal anlegt. Für eine spätere Änderung einen neuen Kanalnamen nehmen."
+              }
+            }
           }
         },
         "reconfigure": {
@@ -59,6 +77,24 @@
           "data_description": {
             "buttons": "Wird ein Knopf umbenannt, ändert sich sein Ereignistyp. Automationen, die auf den alten Namen reagieren, anpassen.",
             "expire_minutes": "Wird nach dieser Zeit von allen Handys entfernt. 0 = nie."
+          },
+          "sections": {
+            "delivery": {
+              "name": "Zustellung und Ton",
+              "description": "Wie das Handy die Benachrichtigung zustellt und welchen Ton es benutzt.",
+              "data": {
+                "urgent": "Sofort zustellen",
+                "alarm_stream": "Auch bei „Nicht stören“ hörbar",
+                "channel": "Benachrichtigungskanal",
+                "importance": "Wichtigkeit des Kanals"
+              },
+              "data_description": {
+                "urgent": "Sendet mit hoher Priorität, damit ein Handy im Akkusparmodus sie sofort bekommt. Empfohlen für Xiaomi und andere Handys, die Benachrichtigungen verzögern.",
+                "alarm_stream": "Spielt den Ton über den Wecker-Kanal ab. Ersetzt den Benachrichtigungskanal.",
+                "channel": "Android-Benachrichtigungskanal, z. B. Pinned Push. Ton und Vibration lassen sich in den Android-Einstellungen ändern. Leer = Standardkanal.",
+                "importance": "Gilt nur, wenn Android den Kanal zum ersten Mal anlegt. Für eine spätere Änderung einen neuen Kanalnamen nehmen."
+              }
+            }
           }
         }
       },
@@ -117,6 +153,14 @@
     "missing_recipients": {
       "title": "Pinned Push: Handy für {notification} nicht gefunden",
       "description": "Für folgende Empfänger wurde keine Companion App gefunden: {recipients}.\n\nBei einer Person unter Einstellungen → Personen das Handy bei den verfolgten Geräten auswählen oder die Companion App mit dem Benutzer dieser Person anmelden. Bei einem Handy prüfen, ob es in der Mobile-App-Integration noch registriert ist.\n\nDiese Meldung verschwindet beim nächsten erfolgreichen Senden."
+    },
+    "renamed_buttons": {
+      "title": "Pinned Push: umbenannter Knopf wird noch benutzt ({notification})",
+      "description": "Die Knöpfe {labels} gibt es bei {notification} nicht mehr, folgende Automationen benutzen sie aber noch: {automations}.\n\nDie Knöpfe heißen jetzt {current}. Automationen anpassen; diese Meldung verschwindet, sobald keine Automation die alten Namen mehr benutzt."
+    },
+    "resend_limit": {
+      "title": "Pinned Push: {notification} verschwindet immer wieder",
+      "description": "{notification} wurde {count}-mal weggewischt und wird bis zum nächsten Senden nicht mehr angezeigt.\n\nWenn du sie nicht selbst weggewischt hast, entfernt das Handy sie von sich aus. Die Companion App von der Akkuoptimierung ausnehmen und Benachrichtigungen erlauben."
     }
   },
   "services": {
@@ -150,6 +194,17 @@
           "name": "Benachrichtigung",
           "description": "Die Benachrichtigung, die entfernt wird."
         }
+      }
+    }
+  },
+  "selector": {
+    "importance": {
+      "options": {
+        "min": "Minimal",
+        "low": "Niedrig",
+        "default": "Standard",
+        "high": "Hoch",
+        "max": "Maximal"
       }
     }
   }

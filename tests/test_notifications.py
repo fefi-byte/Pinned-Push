@@ -41,10 +41,23 @@ async def _send(hass: HomeAssistant, **data) -> dict:
     )
 
 
-def _press(hass: HomeAssistant, index: int, user: str, webhook: str) -> None:
+def _press(
+    hass: HomeAssistant,
+    index: int,
+    user: str,
+    webhook: str,
+    send_id: int | None = None,
+) -> None:
+    """Press a button of the currently shown send (or of an older one)."""
+    if send_id is None:
+        send_id = hass.states.get(SENSOR_ID).attributes["send_id"]
     hass.bus.async_fire(
         "mobile_app_notification_action",
-        {"action": f"PINNED_PUSH|sub1|{index}", "tag": TAG, "webhook_id": webhook},
+        {
+            "action": f"PINNED_PUSH|sub1|{send_id}|{index}",
+            "tag": TAG,
+            "webhook_id": webhook,
+        },
         context=Context(user_id=user),
     )
 
@@ -88,9 +101,12 @@ async def test_send_and_answer(
     assert payload["sticky"] == "true"
     assert payload["notification_icon"] == "mdi:coffee"
     assert payload["actions"] == [
-        {"action": "PINNED_PUSH|sub1|0", "title": "Ja"},
-        {"action": "PINNED_PUSH|sub1|1", "title": "Nein"},
+        {"action": "PINNED_PUSH|sub1|1|0", "title": "Ja"},
+        {"action": "PINNED_PUSH|sub1|1|1", "title": "Nein"},
     ]
+    assert payload["ttl"] == 0
+    assert payload["priority"] == "high"
+    assert "channel" not in payload
     assert hass.states.get(SENSOR_ID).state == "open"
 
     _press(hass, 1, USER_A, WEBHOOK_A)
@@ -102,6 +118,8 @@ async def test_send_and_answer(
     assert event.attributes["person_name"] == "Felix"
     assert event.attributes["confirmed"] is False
     assert event.attributes["button_index"] == 1
+    assert event.attributes["device"] == "Phone A"
+    assert event.attributes["send_id"] == 1
 
     sensor = hass.states.get(SENSOR_ID)
     assert sensor.state == "answered"
@@ -363,6 +381,8 @@ async def test_event_received_trigger(
     hass: HomeAssistant, entry: MockConfigEntry, notify_calls: list[ServiceCall]
 ) -> None:
     """The built-in event.received trigger picks the button by its label."""
+    if not await _has_event_received_trigger(hass):
+        pytest.skip("event.received trigger needs a newer Home Assistant")
     from homeassistant.setup import async_setup_component
     from pytest_homeassistant_custom_component.common import async_mock_service
 
@@ -394,3 +414,11 @@ async def test_event_received_trigger(
     await hass.async_block_till_done()
     assert len(calls) == 1
     assert calls[0].data["who"] == "person.felix"
+
+
+async def _has_event_received_trigger(hass: HomeAssistant) -> bool:
+    """Purpose-specific triggers are on by default since 2026.7."""
+    from awesomeversion import AwesomeVersion  # noqa: PLC0415
+    from homeassistant.const import __version__  # noqa: PLC0415
+
+    return AwesomeVersion(__version__) >= AwesomeVersion("2026.7.0")

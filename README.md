@@ -39,8 +39,14 @@ still come back and expiry timers keep running.
   and an `expired` event fires.
 - **Restart-safe.** State is stored; answers, re-sends and expiry survive
   restarts and reloads.
-- **Repairs instead of silent failures.** If a person has no phone that can be
-  reached, a repair issue tells you who.
+- **Repairs instead of silent failures.** A repair issue tells you when a
+  person has no reachable phone, when you renamed a button that an automation
+  still uses, or when a phone keeps removing the notification on its own.
+- **Delivery and sound.** Immediate high-priority delivery (helps with phones
+  that delay notifications to save battery), your own notification channel,
+  and optionally audible with Do Not Disturb.
+- **Late presses do not count.** Every send has a number; pressing a button on
+  an outdated, replaced or expired notification is ignored.
 - English and German UI.
 
 ## Installation
@@ -57,7 +63,9 @@ still come back and expiry timers keep running.
 Copy `custom_components/pinned_push` into your `config/custom_components`
 folder (or unpack `pinned_push.zip` from a release there) and restart.
 
-Requires Home Assistant 2026.3 or newer and the Companion App on Android.
+Requires Home Assistant 2025.6 or newer and the Companion App on Android.
+The *Event received* trigger used below needs Home Assistant 2026.7; on older
+versions use a state trigger with a condition (see below).
 
 ## Setup
 
@@ -74,14 +82,20 @@ Open the Pinned Push entry and choose **Add notification**:
 | Icon | Notification icon (`mdi:` icons) |
 | Show again when swiped away | Re-show on the phone that dismissed it |
 | Expires after | Minutes until it is removed; 0 = never |
+| **Delivery and sound** (collapsed) | |
+| Deliver immediately | High priority, delivered at once even when the phone is dozing. On by default |
+| Audible with Do Not Disturb | Plays the sound on the alarm stream |
+| Notification channel | Android channel; its sound and vibration can be changed in Android's settings |
+| Channel importance | Only applied when Android creates the channel for the first time |
 
 Each notification gets:
 
 - `event.<name>` – fires on every answer. Event types are the button labels
-  plus `expired`. Attributes: `person`, `person_name`, `button_index`,
-  `confirmed`, `at`.
+  plus `expired`. Attributes: `person`, `person_name`, `device`,
+  `button_index`, `confirmed`, `send_id`, `at`.
 - `sensor.<name>_status` – `idle`, `open`, `answered` or `expired`, with the
-  last answer, who answered, recipients and expiry time as attributes.
+  last answer, who answered and on which phone, recipients, send number,
+  number of re-sends and expiry time as attributes.
 
 ## Usage
 
@@ -98,7 +112,8 @@ data:
 
 Optional fields: `title`, `message`, `persons` (replaces the configured
 recipients for this send). Sending again replaces the notification on the
-phones. With `response_variable` the action returns where it was sent.
+phones; a button pressed on the old version no longer counts. With
+`response_variable` the action returns where it was sent and the `send_id`.
 
 ### React to the answer
 
@@ -118,6 +133,22 @@ triggers:
 `trigger.to_state.attributes.person` tells you who answered. Use
 `event_type: ["expired"]` to react when nobody answered in time.
 
+Before Home Assistant 2026.7:
+
+```yaml
+triggers:
+  - trigger: state
+    entity_id: event.early_shift
+conditions:
+  - condition: state
+    entity_id: event.early_shift
+    attribute: event_type
+    state: "Yes"
+```
+
+If you rename a button later, a repair issue lists the automations that still
+use the old label and disappears once they are updated.
+
 Every answer is also fired on the event bus as `pinned_push_answer`
 (`notification`, `event_type`, `person`, `person_name`, `button_index`,
 `confirmed`).
@@ -133,20 +164,27 @@ data:
 ## How it works
 
 - Notifications are sent with `persistent`, `sticky` and a tag
-  `pinned_push_<id>`; buttons use the action ids `PINNED_PUSH|<id>|<n>`.
-- Answers come from `mobile_app_notification_action`; who answered is taken
-  from the Home Assistant user behind the Companion App.
+  `pinned_push_<id>`; buttons use the action ids
+  `PINNED_PUSH|<id>|<send>|<n>`.
+- Answers come from `mobile_app_notification_action`. The phone is identified
+  by its webhook; the person is the one tracking that phone, or else the person
+  of the Home Assistant user logged in to the app.
 - A swipe arrives as `mobile_app_notification_cleared`; the notification is
-  re-sent after two seconds to that phone only (at most 50 times).
+  re-sent after two seconds to that phone only, at most 50 times.
+- Deleting a notification that is still showing removes it from the phones.
 
 ## Limitations
 
 - Android only. iOS ignores `persistent`/`sticky`, so notifications can be
   swiped away for good there.
 - Android shows at most three buttons.
-- The person who answered is identified by the Home Assistant user logged in
-  to the Companion App. A shared tablet logged in as one user reports that
-  user's person.
+- A button pressed while Home Assistant is restarting may be lost; the
+  Companion App does not resend it.
+- On phones with aggressive battery saving (e.g. Xiaomi), exclude the Companion
+  App from battery optimization, otherwise dismissals and presses can arrive
+  late or not at all.
+- A phone that no person tracks is attributed to the person of the logged-in
+  Home Assistant user.
 
 ## License
 

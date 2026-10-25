@@ -18,6 +18,16 @@ CONF_ICON: Final = "icon"
 CONF_RESEND: Final = "resend_on_dismiss"
 CONF_EXPIRE: Final = "expire_minutes"
 
+# Delivery section
+CONF_DELIVERY: Final = "delivery"
+CONF_URGENT: Final = "urgent"
+CONF_ALARM_STREAM: Final = "alarm_stream"
+CONF_CHANNEL: Final = "channel"
+CONF_IMPORTANCE: Final = "importance"
+IMPORTANCES: Final = ["min", "low", "default", "high", "max"]
+DEFAULT_IMPORTANCE: Final = "default"
+DELIVERY_KEYS: Final = (CONF_URGENT, CONF_ALARM_STREAM, CONF_CHANNEL, CONF_IMPORTANCE)
+
 DEFAULT_CONFIRM_TEXT: Final = "OK"
 DEFAULT_ICON: Final = "mdi:pin"
 DEFAULT_EXPIRE: Final = 0
@@ -47,6 +57,13 @@ RESEND_DELAY: Final = 2
 # Upper bound of re-sends per notification, guards against a phone that
 # clears notifications on its own in a loop
 MAX_RESENDS: Final = 50
+
+AUTOMATION_DOMAIN: Final = "automation"
+EVENT_AUTOMATION_RELOADED: Final = "automation_reloaded"
+
+ISSUE_MISSING_RECIPIENTS: Final = "missing_recipients"
+ISSUE_RENAMED_BUTTONS: Final = "renamed_buttons"
+ISSUE_RESEND_LIMIT: Final = "resend_limit"
 
 MOBILE_APP_DOMAIN: Final = "mobile_app"
 NOTIFY_DOMAIN: Final = "notify"

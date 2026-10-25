@@ -53,6 +53,8 @@ class PinnedPushStatusSensor(PinnedPushEntity, SensorEntity):
         state = self.notification_state
         answer = state.get("answer") or {}
         return {
+            "send_id": state.get("send_id"),
+            "resends": state.get("resends"),
             "sent_at": state.get("sent_at"),
             "expires_at": state.get("expires_at"),
             "recipients": [f"notify.{s}" for s in state.get("targets", [])],
@@ -61,5 +63,6 @@ class PinnedPushStatusSensor(PinnedPushEntity, SensorEntity):
             "confirmed": answer.get("confirmed"),
             "answered_by": answer.get("person"),
             "answered_by_name": answer.get("person_name"),
+            "answered_on": answer.get("device"),
             "answered_at": answer.get("at"),
         }

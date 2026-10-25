@@ -40,6 +40,24 @@
             "confirm_text": "Label of the first button.",
             "buttons": "Up to two more buttons. Android shows three buttons at most.",
             "expire_minutes": "Removed from all phones after this time. 0 means never."
+          },
+          "sections": {
+            "delivery": {
+              "name": "Delivery and sound",
+              "description": "How the phone delivers the notification and which sound it uses.",
+              "data": {
+                "urgent": "Deliver immediately",
+                "alarm_stream": "Audible with Do Not Disturb",
+                "channel": "Notification channel",
+                "importance": "Channel importance"
+              },
+              "data_description": {
+                "urgent": "Sends with high priority, so a phone in battery saving receives it at once. Recommended for Xiaomi and other phones that delay notifications.",
+                "alarm_stream": "Plays the sound on the alarm stream. Overrides the channel.",
+                "channel": "Android notification channel, for example Pinned Push. Its sound and vibration can be changed in the Android settings. Empty uses the default channel.",
+                "importance": "Only applies when Android creates the channel for the first time. To change it later, use a new channel name."
+              }
+            }
           }
         },
         "reconfigure": {
@@ -59,6 +77,24 @@
           "data_description": {
             "buttons": "Renaming a button changes its event type. Update automations that trigger on the old name.",
             "expire_minutes": "Removed from all phones after this time. 0 means never."
+          },
+          "sections": {
+            "delivery": {
+              "name": "Delivery and sound",
+              "description": "How the phone delivers the notification and which sound it uses.",
+              "data": {
+                "urgent": "Deliver immediately",
+                "alarm_stream": "Audible with Do Not Disturb",
+                "channel": "Notification channel",
+                "importance": "Channel importance"
+              },
+              "data_description": {
+                "urgent": "Sends with high priority, so a phone in battery saving receives it at once. Recommended for Xiaomi and other phones that delay notifications.",
+                "alarm_stream": "Plays the sound on the alarm stream. Overrides the channel.",
+                "channel": "Android notification channel, for example Pinned Push. Its sound and vibration can be changed in the Android settings. Empty uses the default channel.",
+                "importance": "Only applies when Android creates the channel for the first time. To change it later, use a new channel name."
+              }
+            }
           }
         }
       },
@@ -117,6 +153,14 @@
     "missing_recipients": {
       "title": "Pinned Push: phone not found for {notification}",
       "description": "No Companion App could be found for: {recipients}.\n\nFor a person, select their phone under Settings → People → tracked devices, or log in to the Companion App with that person's user. For a phone, check that it is still registered in the Mobile App integration.\n\nThis message disappears with the next successful send."
+    },
+    "renamed_buttons": {
+      "title": "Pinned Push: renamed button still used for {notification}",
+      "description": "The button labels {labels} no longer exist in {notification}, but these automations still use them: {automations}.\n\nThe buttons are now called {current}. Update the automations; this message disappears once no automation uses the old labels."
+    },
+    "resend_limit": {
+      "title": "Pinned Push: {notification} keeps disappearing",
+      "description": "{notification} was dismissed {count} times and is not shown again until it is sent next time.\n\nIf you did not swipe it away yourself, the phone removes it on its own. Exclude the Companion App from battery optimization and allow it to show notifications."
     }
   },
   "services": {
@@ -150,6 +194,17 @@
           "name": "Notification",
           "description": "The notification to remove."
         }
+      }
+    }
+  },
+  "selector": {
+    "importance": {
+      "options": {
+        "min": "Minimal",
+        "low": "Low",
+        "default": "Default",
+        "high": "High",
+        "max": "Maximum"
       }
     }
   }
