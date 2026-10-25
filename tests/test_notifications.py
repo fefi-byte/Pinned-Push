@@ -378,7 +378,10 @@ async def test_send_unknown_entity(hass: HomeAssistant, entry: MockConfigEntry) 
 
 
 async def test_event_received_trigger(
-    hass: HomeAssistant, entry: MockConfigEntry, notify_calls: list[ServiceCall]
+    hass: HomeAssistant,
+    entry: MockConfigEntry,
+    notify_calls: list[ServiceCall],
+    freezer: FrozenDateTimeFactory,
 ) -> None:
     """The built-in event.received trigger picks the button by its label."""
     if not await _has_event_received_trigger(hass):
@@ -409,6 +412,9 @@ async def test_event_received_trigger(
     await hass.async_block_till_done()
     assert calls == []
 
+    # Two presses in the same millisecond would give the event entity the
+    # same timestamp; on a real phone presses are seconds apart
+    freezer.tick(timedelta(seconds=1))
     await _send(hass)
     _press(hass, 1, USER_A, WEBHOOK_A)
     await hass.async_block_till_done()
