@@ -1,0 +1,28 @@
+name: Release
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  zip:
+    name: Attach zip
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check version
+        run: |
+          tag="${GITHUB_REF_NAME#v}"
+          version=$(python3 -c "import json;print(json.load(open('custom_components/pinned_push/manifest.json'))['version'])")
+          if [ "$tag" != "$version" ]; then
+            echo "Tag $tag does not match manifest version $version"; exit 1
+          fi
+      - name: Build zip
+        run: cd custom_components/pinned_push && zip -r ../../pinned_push.zip . -x "__pycache__/*"
+      - name: Upload
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "$GITHUB_REF_NAME" pinned_push.zip --clobber

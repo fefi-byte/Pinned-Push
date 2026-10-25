@@ -1,0 +1,63 @@
+"""Constants for Pinned Push."""
+
+from __future__ import annotations
+
+from typing import Final
+
+DOMAIN: Final = "pinned_push"
+
+SUBENTRY_TYPE_NOTIFICATION: Final = "notification"
+
+CONF_PERSONS: Final = "persons"
+CONF_DEVICES: Final = "devices"
+CONF_TITLE: Final = "title"
+CONF_MESSAGE: Final = "message"
+CONF_CONFIRM_TEXT: Final = "confirm_text"
+CONF_BUTTONS: Final = "buttons"
+CONF_ICON: Final = "icon"
+CONF_RESEND: Final = "resend_on_dismiss"
+CONF_EXPIRE: Final = "expire_minutes"
+
+DEFAULT_CONFIRM_TEXT: Final = "OK"
+DEFAULT_ICON: Final = "mdi:pin"
+DEFAULT_EXPIRE: Final = 0
+MAX_EXTRA_BUTTONS: Final = 2
+MAX_EXPIRE_MINUTES: Final = 10080
+
+# Identifiers sent to the Companion App
+ACTION_PREFIX: Final = "PINNED_PUSH"
+TAG_PREFIX: Final = "pinned_push_"
+
+# Event type used on the event entity when a notification expires
+EVENT_TYPE_EXPIRED: Final = "expired"
+
+# Bus event fired for every answer or expiry
+EVENT_ANSWER: Final = "pinned_push_answer"
+
+STATUS_IDLE: Final = "idle"
+STATUS_OPEN: Final = "open"
+STATUS_ANSWERED: Final = "answered"
+STATUS_EXPIRED: Final = "expired"
+STATUSES: Final = [STATUS_IDLE, STATUS_OPEN, STATUS_ANSWERED, STATUS_EXPIRED]
+
+STORAGE_VERSION: Final = 1
+
+# Seconds to wait before showing a dismissed notification again
+RESEND_DELAY: Final = 2
+# Upper bound of re-sends per notification, guards against a phone that
+# clears notifications on its own in a loop
+MAX_RESENDS: Final = 50
+
+MOBILE_APP_DOMAIN: Final = "mobile_app"
+NOTIFY_DOMAIN: Final = "notify"
+PERSON_DOMAIN: Final = "person"
+
+EVENT_MOBILE_APP_ACTION: Final = "mobile_app_notification_action"
+EVENT_MOBILE_APP_CLEARED: Final = "mobile_app_notification_cleared"
+
+SERVICE_SEND: Final = "send"
+SERVICE_DISMISS: Final = "dismiss"
+
+ATTR_PERSONS: Final = "persons"
+ATTR_TITLE: Final = "title"
+ATTR_MESSAGE: Final = "message"

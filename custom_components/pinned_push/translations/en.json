@@ -1,0 +1,156 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "description": "Set up Pinned Push. Afterwards, add one entry per notification you want to send."
+      }
+    },
+    "abort": {
+      "single_instance_allowed": "Pinned Push is already set up. Add notifications to the existing entry."
+    }
+  },
+  "config_subentries": {
+    "notification": {
+      "entry_type": "Notification",
+      "initiate_flow": {
+        "user": "Add notification"
+      },
+      "step": {
+        "user": {
+          "title": "Add notification",
+          "description": "The notification is pinned on the phones of the selected people and comes back when swiped away, until someone presses a button.",
+          "data": {
+            "name": "Name",
+            "persons": "People",
+            "devices": "Additional phones",
+            "title": "Title",
+            "message": "Message",
+            "confirm_text": "Confirm button",
+            "buttons": "Additional buttons",
+            "icon": "Icon",
+            "resend_on_dismiss": "Show again when swiped away",
+            "expire_minutes": "Expires after"
+          },
+          "data_description": {
+            "name": "Also names the device and its entities, for example event.early_shift.",
+            "persons": "The phones are taken from each person's tracked devices.",
+            "devices": "Companion App devices that should receive it in addition.",
+            "title": "Can be overridden when sending.",
+            "message": "Can be overridden when sending.",
+            "confirm_text": "Label of the first button.",
+            "buttons": "Up to two more buttons. Android shows three buttons at most.",
+            "expire_minutes": "Removed from all phones after this time. 0 means never."
+          }
+        },
+        "reconfigure": {
+          "title": "Change notification",
+          "data": {
+            "name": "Name",
+            "persons": "People",
+            "devices": "Additional phones",
+            "title": "Title",
+            "message": "Message",
+            "confirm_text": "Confirm button",
+            "buttons": "Additional buttons",
+            "icon": "Icon",
+            "resend_on_dismiss": "Show again when swiped away",
+            "expire_minutes": "Expires after"
+          },
+          "data_description": {
+            "buttons": "Renaming a button changes its event type. Update automations that trigger on the old name.",
+            "expire_minutes": "Removed from all phones after this time. 0 means never."
+          }
+        }
+      },
+      "error": {
+        "empty_name": "Enter a name.",
+        "empty_button": "Enter a label.",
+        "no_recipients": "Select at least one person or phone.",
+        "too_many_buttons": "Android shows three buttons at most: the confirm button plus two more.",
+        "duplicate_buttons": "Every button needs a different label.",
+        "reserved_button": "\"expired\" is reserved for notifications that time out."
+      },
+      "abort": {
+        "reconfigure_successful": "The notification was changed."
+      }
+    }
+  },
+  "entity": {
+    "event": {
+      "answer": {
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "expired": "Expired"
+            }
+          }
+        }
+      }
+    },
+    "sensor": {
+      "status": {
+        "name": "Status",
+        "state": {
+          "idle": "Idle",
+          "open": "Open",
+          "answered": "Answered",
+          "expired": "Expired"
+        }
+      }
+    }
+  },
+  "exceptions": {
+    "no_recipients": {
+      "message": "No phone found for {notification}. Check the people and phones of this notification."
+    },
+    "send_failed": {
+      "message": "{notification} could not be sent via {services}."
+    },
+    "unknown_notification": {
+      "message": "{entity_id} is not a Pinned Push notification."
+    },
+    "not_loaded": {
+      "message": "Pinned Push is not loaded."
+    }
+  },
+  "issues": {
+    "missing_recipients": {
+      "title": "Pinned Push: phone not found for {notification}",
+      "description": "No Companion App could be found for: {recipients}.\n\nFor a person, select their phone under Settings → People → tracked devices, or log in to the Companion App with that person's user. For a phone, check that it is still registered in the Mobile App integration.\n\nThis message disappears with the next successful send."
+    }
+  },
+  "services": {
+    "send": {
+      "name": "Send",
+      "description": "Sends a pinned notification, or replaces it if it is already showing.",
+      "fields": {
+        "entity_id": {
+          "name": "Notification",
+          "description": "The notification to send."
+        },
+        "title": {
+          "name": "Title",
+          "description": "Replaces the configured title for this send."
+        },
+        "message": {
+          "name": "Message",
+          "description": "Replaces the configured message for this send."
+        },
+        "persons": {
+          "name": "People",
+          "description": "Replaces the configured people and phones for this send."
+        }
+      }
+    },
+    "dismiss": {
+      "name": "Dismiss",
+      "description": "Removes an open notification from all phones without an answer.",
+      "fields": {
+        "entity_id": {
+          "name": "Notification",
+          "description": "The notification to remove."
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "domain": "pinned_push",
+  "name": "Pinned Push",
+  "after_dependencies": ["mobile_app", "notify", "person"],
+  "codeowners": ["@fefi-byte"],
+  "config_flow": true,
+  "documentation": "https://github.com/fefi-byte/pinned-push",
+  "integration_type": "service",
+  "iot_class": "calculated",
+  "issue_tracker": "https://github.com/fefi-byte/pinned-push/issues",
+  "requirements": [],
+  "single_config_entry": true,
+  "version": "0.1.0"
+}

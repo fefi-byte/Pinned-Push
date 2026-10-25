@@ -1,0 +1,28 @@
+{
+  "entity": {
+    "event": {
+      "answer": {
+        "default": "mdi:gesture-tap-button"
+      }
+    },
+    "sensor": {
+      "status": {
+        "default": "mdi:pin",
+        "state": {
+          "idle": "mdi:pin-off-outline",
+          "open": "mdi:pin",
+          "answered": "mdi:check-circle-outline",
+          "expired": "mdi:timer-off-outline"
+        }
+      }
+    }
+  },
+  "services": {
+    "send": {
+      "service": "mdi:pin"
+    },
+    "dismiss": {
+      "service": "mdi:pin-off"
+    }
+  }
+}

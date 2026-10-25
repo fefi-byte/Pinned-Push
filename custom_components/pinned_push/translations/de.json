@@ -1,0 +1,156 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "description": "Pinned Push einrichten. Danach legst du für jede Benachrichtigung, die du senden willst, einen eigenen Eintrag an."
+      }
+    },
+    "abort": {
+      "single_instance_allowed": "Pinned Push ist bereits eingerichtet. Füge Benachrichtigungen beim bestehenden Eintrag hinzu."
+    }
+  },
+  "config_subentries": {
+    "notification": {
+      "entry_type": "Benachrichtigung",
+      "initiate_flow": {
+        "user": "Benachrichtigung hinzufügen"
+      },
+      "step": {
+        "user": {
+          "title": "Benachrichtigung hinzufügen",
+          "description": "Die Benachrichtigung wird auf den Handys der gewählten Personen angeheftet und kommt nach dem Wegwischen wieder, bis jemand einen Knopf drückt.",
+          "data": {
+            "name": "Name",
+            "persons": "Personen",
+            "devices": "Zusätzliche Handys",
+            "title": "Titel",
+            "message": "Nachricht",
+            "confirm_text": "Bestätigen-Knopf",
+            "buttons": "Weitere Knöpfe",
+            "icon": "Symbol",
+            "resend_on_dismiss": "Nach Wegwischen wieder anzeigen",
+            "expire_minutes": "Läuft ab nach"
+          },
+          "data_description": {
+            "name": "Benennt auch das Gerät und seine Entitäten, z. B. event.fruhschicht.",
+            "persons": "Die Handys werden aus den verfolgten Geräten jeder Person genommen.",
+            "devices": "Companion-App-Geräte, die sie zusätzlich bekommen sollen.",
+            "title": "Kann beim Senden überschrieben werden.",
+            "message": "Kann beim Senden überschrieben werden.",
+            "confirm_text": "Beschriftung des ersten Knopfs.",
+            "buttons": "Bis zu zwei weitere Knöpfe. Android zeigt höchstens drei Knöpfe.",
+            "expire_minutes": "Wird nach dieser Zeit von allen Handys entfernt. 0 = nie."
+          }
+        },
+        "reconfigure": {
+          "title": "Benachrichtigung ändern",
+          "data": {
+            "name": "Name",
+            "persons": "Personen",
+            "devices": "Zusätzliche Handys",
+            "title": "Titel",
+            "message": "Nachricht",
+            "confirm_text": "Bestätigen-Knopf",
+            "buttons": "Weitere Knöpfe",
+            "icon": "Symbol",
+            "resend_on_dismiss": "Nach Wegwischen wieder anzeigen",
+            "expire_minutes": "Läuft ab nach"
+          },
+          "data_description": {
+            "buttons": "Wird ein Knopf umbenannt, ändert sich sein Ereignistyp. Automationen, die auf den alten Namen reagieren, anpassen.",
+            "expire_minutes": "Wird nach dieser Zeit von allen Handys entfernt. 0 = nie."
+          }
+        }
+      },
+      "error": {
+        "empty_name": "Bitte einen Namen eingeben.",
+        "empty_button": "Bitte eine Beschriftung eingeben.",
+        "no_recipients": "Mindestens eine Person oder ein Handy auswählen.",
+        "too_many_buttons": "Android zeigt höchstens drei Knöpfe: Bestätigen plus zwei weitere.",
+        "duplicate_buttons": "Jeder Knopf braucht eine eigene Beschriftung.",
+        "reserved_button": "„expired“ ist für abgelaufene Benachrichtigungen reserviert."
+      },
+      "abort": {
+        "reconfigure_successful": "Die Benachrichtigung wurde geändert."
+      }
+    }
+  },
+  "entity": {
+    "event": {
+      "answer": {
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "expired": "Abgelaufen"
+            }
+          }
+        }
+      }
+    },
+    "sensor": {
+      "status": {
+        "name": "Status",
+        "state": {
+          "idle": "Bereit",
+          "open": "Offen",
+          "answered": "Beantwortet",
+          "expired": "Abgelaufen"
+        }
+      }
+    }
+  },
+  "exceptions": {
+    "no_recipients": {
+      "message": "Kein Handy für {notification} gefunden. Personen und Handys dieser Benachrichtigung prüfen."
+    },
+    "send_failed": {
+      "message": "{notification} konnte über {services} nicht gesendet werden."
+    },
+    "unknown_notification": {
+      "message": "{entity_id} ist keine Pinned-Push-Benachrichtigung."
+    },
+    "not_loaded": {
+      "message": "Pinned Push ist nicht geladen."
+    }
+  },
+  "issues": {
+    "missing_recipients": {
+      "title": "Pinned Push: Handy für {notification} nicht gefunden",
+      "description": "Für folgende Empfänger wurde keine Companion App gefunden: {recipients}.\n\nBei einer Person unter Einstellungen → Personen das Handy bei den verfolgten Geräten auswählen oder die Companion App mit dem Benutzer dieser Person anmelden. Bei einem Handy prüfen, ob es in der Mobile-App-Integration noch registriert ist.\n\nDiese Meldung verschwindet beim nächsten erfolgreichen Senden."
+    }
+  },
+  "services": {
+    "send": {
+      "name": "Senden",
+      "description": "Sendet eine angeheftete Benachrichtigung oder ersetzt sie, wenn sie schon angezeigt wird.",
+      "fields": {
+        "entity_id": {
+          "name": "Benachrichtigung",
+          "description": "Die Benachrichtigung, die gesendet wird."
+        },
+        "title": {
+          "name": "Titel",
+          "description": "Ersetzt den eingestellten Titel für dieses Senden."
+        },
+        "message": {
+          "name": "Nachricht",
+          "description": "Ersetzt die eingestellte Nachricht für dieses Senden."
+        },
+        "persons": {
+          "name": "Personen",
+          "description": "Ersetzt die eingestellten Personen und Handys für dieses Senden."
+        }
+      }
+    },
+    "dismiss": {
+      "name": "Entfernen",
+      "description": "Entfernt eine offene Benachrichtigung ohne Antwort von allen Handys.",
+      "fields": {
+        "entity_id": {
+          "name": "Benachrichtigung",
+          "description": "Die Benachrichtigung, die entfernt wird."
+        }
+      }
+    }
+  }
+}

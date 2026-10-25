@@ -1,0 +1,34 @@
+send:
+  fields:
+    entity_id:
+      required: true
+      selector:
+        entity:
+          integration: pinned_push
+          domain: event
+          multiple: true
+    title:
+      required: false
+      selector:
+        text:
+    message:
+      required: false
+      selector:
+        text:
+          multiline: true
+    persons:
+      required: false
+      selector:
+        entity:
+          domain: person
+          multiple: true
+
+dismiss:
+  fields:
+    entity_id:
+      required: true
+      selector:
+        entity:
+          integration: pinned_push
+          domain: event
+          multiple: true
