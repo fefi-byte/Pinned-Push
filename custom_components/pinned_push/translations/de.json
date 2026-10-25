@@ -13,20 +13,18 @@
     "notification": {
       "entry_type": "Benachrichtigung",
       "initiate_flow": {
-        "user": "Benachrichtigung hinzufügen"
+        "user": "Benachrichtigung hinzufügen",
+        "reconfigure": "Benachrichtigung ändern"
       },
       "step": {
         "user": {
           "title": "Benachrichtigung hinzufügen",
-          "description": "Die Benachrichtigung wird auf den Handys der gewählten Personen angeheftet und kommt nach dem Wegwischen wieder, bis jemand einen Knopf drückt.",
           "data": {
             "name": "Name",
             "persons": "Personen",
             "devices": "Zusätzliche Handys",
             "title": "Titel",
             "message": "Nachricht",
-            "confirm_text": "Bestätigen-Knopf",
-            "buttons": "Weitere Knöpfe",
             "icon": "Symbol",
             "resend_on_dismiss": "Nach Wegwischen wieder anzeigen",
             "expire_minutes": "Läuft ab nach"
@@ -37,28 +35,79 @@
             "devices": "Companion-App-Geräte, die sie zusätzlich bekommen sollen.",
             "title": "Kann beim Senden überschrieben werden.",
             "message": "Kann beim Senden überschrieben werden.",
-            "confirm_text": "Beschriftung des ersten Knopfs.",
-            "buttons": "Bis zu zwei weitere Knöpfe. Android zeigt höchstens drei Knöpfe.",
             "expire_minutes": "Wird nach dieser Zeit von allen Handys entfernt. 0 = nie."
           },
           "sections": {
+            "button_1": {
+              "name": "Knopf 1 (Bestätigen)",
+              "description": "Der erste Knopf gilt als Bestätigung.",
+              "data": {
+                "label": "Beschriftung",
+                "type": "Was er tut",
+                "target": "Seite oder Adresse"
+              },
+              "data_description": {
+                "target": "Nur für „Seite öffnen“: ein Dashboard-Pfad wie /lovelace/kameras, eine URL, entityId:light.kueche, app://paket oder settings://notification_history."
+              }
+            },
+            "button_2": {
+              "name": "Knopf 2",
+              "description": "Optional. Beschriftung leer lassen, um ihn wegzulassen.",
+              "data": {
+                "label": "Beschriftung",
+                "type": "Was er tut",
+                "target": "Seite oder Adresse"
+              },
+              "data_description": {
+                "target": "Nur für „Seite öffnen“: ein Dashboard-Pfad wie /lovelace/kameras, eine URL, entityId:light.kueche, app://paket oder settings://notification_history."
+              }
+            },
+            "button_3": {
+              "name": "Knopf 3",
+              "description": "Optional. Android zeigt höchstens drei Knöpfe.",
+              "data": {
+                "label": "Beschriftung",
+                "type": "Was er tut",
+                "target": "Seite oder Adresse"
+              },
+              "data_description": {
+                "target": "Nur für „Seite öffnen“: ein Dashboard-Pfad wie /lovelace/kameras, eine URL, entityId:light.kueche, app://paket oder settings://notification_history."
+              }
+            },
+            "appearance": {
+              "name": "Darstellung",
+              "description": "Farbe, Bild und Verhalten auf dem Handy.",
+              "data": {
+                "color": "Akzentfarbe",
+                "camera": "Kamera-Schnappschuss",
+                "image": "Bild",
+                "click_action": "Beim Antippen öffnen",
+                "visibility": "Auf dem Sperrbildschirm",
+                "countdown": "Countdown bis Ablauf anzeigen",
+                "group": "Gruppe"
+              },
+              "data_description": {
+                "camera": "Zeigt ein aktuelles Bild dieser Kamera. Hat Vorrang vor dem Bild.",
+                "image": "URL oder Pfad, z. B. /media/local/garten.jpg oder /local/logo.png.",
+                "click_action": "Dashboard-Pfad oder URL wie beim Knopf. Leer öffnet die App.",
+                "countdown": "Nur wenn eine Ablaufzeit eingestellt ist.",
+                "group": "Benachrichtigungen mit derselben Gruppe werden zusammen angezeigt."
+              }
+            },
             "delivery": {
               "name": "Zustellung und Ton",
-              "description": "Wie das Handy die Benachrichtigung zustellt und welchen Ton es benutzt.",
+              "description": "Wie schnell die Benachrichtigung ankommt und wie sie klingt.",
               "data": {
                 "urgent": "Sofort zustellen",
-                "alarm_stream": "Auch bei „Nicht stören“ hörbar",
-                "channel": "Benachrichtigungskanal",
-                "importance": "Wichtigkeit des Kanals"
+                "channel_ref": "Benachrichtigungskanal"
               },
               "data_description": {
                 "urgent": "Sendet mit hoher Priorität, damit ein Handy im Akkusparmodus sie sofort bekommt. Empfohlen für Xiaomi und andere Handys, die Benachrichtigungen verzögern.",
-                "alarm_stream": "Spielt den Ton über den Wecker-Kanal ab. Ersetzt den Benachrichtigungskanal.",
-                "channel": "Android-Benachrichtigungskanal, z. B. Pinned Push. Ton und Vibration lassen sich in den Android-Einstellungen ändern. Leer = Standardkanal.",
-                "importance": "Gilt nur, wenn Android den Kanal zum ersten Mal anlegt. Für eine spätere Änderung einen neuen Kanalnamen nehmen."
+                "channel_ref": "Standard, Wecker oder einer deiner eigenen Kanäle. Kanäle legst du beim Pinned-Push-Eintrag an."
               }
             }
-          }
+          },
+          "description": "Die Benachrichtigung wird auf den Handys der gewählten Personen angeheftet und kommt nach dem Wegwischen wieder, bis jemand einen Knopf drückt."
         },
         "reconfigure": {
           "title": "Benachrichtigung ändern",
@@ -68,31 +117,88 @@
             "devices": "Zusätzliche Handys",
             "title": "Titel",
             "message": "Nachricht",
-            "confirm_text": "Bestätigen-Knopf",
-            "buttons": "Weitere Knöpfe",
             "icon": "Symbol",
             "resend_on_dismiss": "Nach Wegwischen wieder anzeigen",
             "expire_minutes": "Läuft ab nach"
           },
           "data_description": {
-            "buttons": "Wird ein Knopf umbenannt, ändert sich sein Ereignistyp. Automationen, die auf den alten Namen reagieren, anpassen.",
+            "name": "Benennt auch das Gerät und seine Entitäten, z. B. event.fruhschicht.",
+            "persons": "Die Handys werden aus den verfolgten Geräten jeder Person genommen.",
+            "devices": "Companion-App-Geräte, die sie zusätzlich bekommen sollen.",
+            "title": "Kann beim Senden überschrieben werden.",
+            "message": "Kann beim Senden überschrieben werden.",
             "expire_minutes": "Wird nach dieser Zeit von allen Handys entfernt. 0 = nie."
           },
           "sections": {
+            "button_1": {
+              "name": "Knopf 1 (Bestätigen)",
+              "description": "Der erste Knopf gilt als Bestätigung.",
+              "data": {
+                "label": "Beschriftung",
+                "type": "Was er tut",
+                "target": "Seite oder Adresse"
+              },
+              "data_description": {
+                "target": "Nur für „Seite öffnen“: ein Dashboard-Pfad wie /lovelace/kameras, eine URL, entityId:light.kueche, app://paket oder settings://notification_history.",
+                "label": "Wird ein Knopf umbenannt, ändert sich sein Ereignistyp. Automationen, die auf den alten Namen reagieren, anpassen."
+              }
+            },
+            "button_2": {
+              "name": "Knopf 2",
+              "description": "Optional. Beschriftung leer lassen, um ihn wegzulassen.",
+              "data": {
+                "label": "Beschriftung",
+                "type": "Was er tut",
+                "target": "Seite oder Adresse"
+              },
+              "data_description": {
+                "target": "Nur für „Seite öffnen“: ein Dashboard-Pfad wie /lovelace/kameras, eine URL, entityId:light.kueche, app://paket oder settings://notification_history.",
+                "label": "Wird ein Knopf umbenannt, ändert sich sein Ereignistyp. Automationen, die auf den alten Namen reagieren, anpassen."
+              }
+            },
+            "button_3": {
+              "name": "Knopf 3",
+              "description": "Optional. Android zeigt höchstens drei Knöpfe.",
+              "data": {
+                "label": "Beschriftung",
+                "type": "Was er tut",
+                "target": "Seite oder Adresse"
+              },
+              "data_description": {
+                "target": "Nur für „Seite öffnen“: ein Dashboard-Pfad wie /lovelace/kameras, eine URL, entityId:light.kueche, app://paket oder settings://notification_history.",
+                "label": "Wird ein Knopf umbenannt, ändert sich sein Ereignistyp. Automationen, die auf den alten Namen reagieren, anpassen."
+              }
+            },
+            "appearance": {
+              "name": "Darstellung",
+              "description": "Farbe, Bild und Verhalten auf dem Handy.",
+              "data": {
+                "color": "Akzentfarbe",
+                "camera": "Kamera-Schnappschuss",
+                "image": "Bild",
+                "click_action": "Beim Antippen öffnen",
+                "visibility": "Auf dem Sperrbildschirm",
+                "countdown": "Countdown bis Ablauf anzeigen",
+                "group": "Gruppe"
+              },
+              "data_description": {
+                "camera": "Zeigt ein aktuelles Bild dieser Kamera. Hat Vorrang vor dem Bild.",
+                "image": "URL oder Pfad, z. B. /media/local/garten.jpg oder /local/logo.png.",
+                "click_action": "Dashboard-Pfad oder URL wie beim Knopf. Leer öffnet die App.",
+                "countdown": "Nur wenn eine Ablaufzeit eingestellt ist.",
+                "group": "Benachrichtigungen mit derselben Gruppe werden zusammen angezeigt."
+              }
+            },
             "delivery": {
               "name": "Zustellung und Ton",
-              "description": "Wie das Handy die Benachrichtigung zustellt und welchen Ton es benutzt.",
+              "description": "Wie schnell die Benachrichtigung ankommt und wie sie klingt.",
               "data": {
                 "urgent": "Sofort zustellen",
-                "alarm_stream": "Auch bei „Nicht stören“ hörbar",
-                "channel": "Benachrichtigungskanal",
-                "importance": "Wichtigkeit des Kanals"
+                "channel_ref": "Benachrichtigungskanal"
               },
               "data_description": {
                 "urgent": "Sendet mit hoher Priorität, damit ein Handy im Akkusparmodus sie sofort bekommt. Empfohlen für Xiaomi und andere Handys, die Benachrichtigungen verzögern.",
-                "alarm_stream": "Spielt den Ton über den Wecker-Kanal ab. Ersetzt den Benachrichtigungskanal.",
-                "channel": "Android-Benachrichtigungskanal, z. B. Pinned Push. Ton und Vibration lassen sich in den Android-Einstellungen ändern. Leer = Standardkanal.",
-                "importance": "Gilt nur, wenn Android den Kanal zum ersten Mal anlegt. Für eine spätere Änderung einen neuen Kanalnamen nehmen."
+                "channel_ref": "Standard, Wecker oder einer deiner eigenen Kanäle. Kanäle legst du beim Pinned-Push-Eintrag an."
               }
             }
           }
@@ -100,14 +206,65 @@
       },
       "error": {
         "empty_name": "Bitte einen Namen eingeben.",
-        "empty_button": "Bitte eine Beschriftung eingeben.",
+        "empty_button": "Der erste Knopf braucht eine Beschriftung.",
         "no_recipients": "Mindestens eine Person oder ein Handy auswählen.",
-        "too_many_buttons": "Android zeigt höchstens drei Knöpfe: Bestätigen plus zwei weitere.",
         "duplicate_buttons": "Jeder Knopf braucht eine eigene Beschriftung.",
-        "reserved_button": "„expired“ ist für abgelaufene Benachrichtigungen reserviert."
+        "reserved_button": "„expired“ ist für abgelaufene Benachrichtigungen reserviert.",
+        "missing_target": "Seite oder Adresse eingeben, die dieser Knopf öffnet.",
+        "first_button_answers": "Der erste Knopf bestätigt und kann nicht nur eine Seite öffnen."
       },
       "abort": {
         "reconfigure_successful": "Die Benachrichtigung wurde geändert."
+      }
+    },
+    "channel": {
+      "entry_type": "Benachrichtigungskanal",
+      "initiate_flow": {
+        "user": "Benachrichtigungskanal hinzufügen",
+        "reconfigure": "Benachrichtigungskanal ändern"
+      },
+      "step": {
+        "user": {
+          "title": "Benachrichtigungskanal hinzufügen",
+          "description": "Ein Android-Benachrichtigungskanal mit eigener Wichtigkeit, Vibration und LED-Farbe. Ton und weitere Details lassen sich auf dem Handy in den Einstellungen dieses Kanals ändern.",
+          "data": {
+            "channel_name": "Name des Kanals",
+            "importance": "Wichtigkeit",
+            "vibration": "Vibrationsmuster",
+            "led_color": "LED-Farbe"
+          },
+          "data_description": {
+            "channel_name": "Erscheint in den Benachrichtigungs-Einstellungen des Handys.",
+            "importance": "Hoch und Maximal erscheinen als Pop-up; Niedrig und Minimal kommen still.",
+            "vibration": "Millisekunden, abwechselnd Pause und Vibration, z. B. 0, 500, 250, 500. Leer = Standard.",
+            "led_color": "Nur bei Handys mit Benachrichtigungs-LED."
+          }
+        },
+        "reconfigure": {
+          "title": "Benachrichtigungskanal ändern",
+          "description": "Android legt diese Einstellungen beim Anlegen des Kanals fest. Nach einer Änderung löscht Pinned Push den Kanal auf den Handys; die nächste Benachrichtigung legt ihn neu an. Auf dem Handy geänderte Ton-Einstellungen gehen dabei verloren.",
+          "data": {
+            "channel_name": "Name des Kanals",
+            "importance": "Wichtigkeit",
+            "vibration": "Vibrationsmuster",
+            "led_color": "LED-Farbe"
+          },
+          "data_description": {
+            "channel_name": "Erscheint in den Benachrichtigungs-Einstellungen des Handys.",
+            "importance": "Hoch und Maximal erscheinen als Pop-up; Niedrig und Minimal kommen still.",
+            "vibration": "Millisekunden, abwechselnd Pause und Vibration, z. B. 0, 500, 250, 500. Leer = Standard.",
+            "led_color": "Nur bei Handys mit Benachrichtigungs-LED."
+          }
+        }
+      },
+      "error": {
+        "empty_name": "Bitte einen Namen eingeben.",
+        "reserved_channel": "Dieser Name ist von der Companion App belegt.",
+        "duplicate_channel": "Einen Kanal mit diesem Namen gibt es schon.",
+        "invalid_vibration": "Zahlen mit Komma getrennt eingeben, z. B. 0, 500, 250, 500."
+      },
+      "abort": {
+        "reconfigure_successful": "Der Benachrichtigungskanal wurde geändert."
       }
     }
   },
@@ -183,6 +340,14 @@
         "persons": {
           "name": "Personen",
           "description": "Ersetzt die eingestellten Personen und Handys für dieses Senden."
+        },
+        "image": {
+          "name": "Bild",
+          "description": "Ersetzt das eingestellte Bild für dieses Senden, z. B. /api/camera_proxy/camera.tuer."
+        },
+        "click_action": {
+          "name": "Beim Antippen öffnen",
+          "description": "Ersetzt die eingestellte Seite für dieses Senden."
         }
       }
     },
@@ -198,6 +363,20 @@
     }
   },
   "selector": {
+    "button_type": {
+      "options": {
+        "answer": "Antworten und schließen",
+        "answer_keep_open": "Antworten, weiter anzeigen",
+        "open": "Seite öffnen (keine Antwort)"
+      }
+    },
+    "visibility": {
+      "options": {
+        "public": "Inhalt zeigen",
+        "private": "Einstellung des Handys",
+        "secret": "Ganz verbergen"
+      }
+    },
     "importance": {
       "options": {
         "min": "Minimal",

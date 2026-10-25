@@ -26,7 +26,53 @@ CONF_CHANNEL: Final = "channel"
 CONF_IMPORTANCE: Final = "importance"
 IMPORTANCES: Final = ["min", "low", "default", "high", "max"]
 DEFAULT_IMPORTANCE: Final = "default"
-DELIVERY_KEYS: Final = (CONF_URGENT, CONF_ALARM_STREAM, CONF_CHANNEL, CONF_IMPORTANCE)
+# 0.2 stored alarm_stream/channel/importance per notification; 0.3 uses
+# channel_ref. The old keys are still read for notifications not yet changed.
+DELIVERY_KEYS: Final = ("urgent", "channel_ref")
+
+# Buttons (since 0.3): three slots, stored as a list of
+# {"label", "type", "target"}. confirm_text/buttons of 0.1/0.2 are migrated
+# on read.
+CONF_BUTTON_LIST: Final = "button_list"
+BUTTON_SLOTS: Final = ("button_1", "button_2", "button_3")
+CONF_LABEL: Final = "label"
+CONF_TYPE: Final = "type"
+CONF_TARGET: Final = "target"
+BUTTON_ANSWER: Final = "answer"
+BUTTON_KEEP_OPEN: Final = "answer_keep_open"
+BUTTON_OPEN: Final = "open"
+BUTTON_TYPES: Final = [BUTTON_ANSWER, BUTTON_KEEP_OPEN, BUTTON_OPEN]
+ANSWER_TYPES: Final = (BUTTON_ANSWER, BUTTON_KEEP_OPEN)
+
+# Appearance section
+CONF_APPEARANCE: Final = "appearance"
+CONF_COLOR: Final = "color"
+CONF_IMAGE: Final = "image"
+CONF_CAMERA: Final = "camera"
+CONF_CLICK_ACTION: Final = "click_action"
+CONF_VISIBILITY: Final = "visibility"
+CONF_COUNTDOWN: Final = "countdown"
+CONF_GROUP: Final = "group"
+VISIBILITIES: Final = ["public", "private", "secret"]
+DEFAULT_VISIBILITY: Final = "private"
+APPEARANCE_KEYS: Final = (
+    CONF_COLOR,
+    CONF_IMAGE,
+    CONF_CAMERA,
+    CONF_CLICK_ACTION,
+    CONF_VISIBILITY,
+    CONF_COUNTDOWN,
+    CONF_GROUP,
+)
+
+# Channels (since 0.3): own subentry type, chosen per notification
+SUBENTRY_TYPE_CHANNEL: Final = "channel"
+CONF_CHANNEL_REF: Final = "channel_ref"
+CONF_CHANNEL_NAME: Final = "channel_name"
+CONF_VIBRATION: Final = "vibration"
+CONF_LED_COLOR: Final = "led_color"
+CHANNEL_DEFAULT: Final = "default"
+CHANNEL_ALARM: Final = "alarm_stream"
 
 DEFAULT_CONFIRM_TEXT: Final = "OK"
 DEFAULT_ICON: Final = "mdi:pin"
@@ -78,3 +124,5 @@ SERVICE_DISMISS: Final = "dismiss"
 ATTR_PERSONS: Final = "persons"
 ATTR_TITLE: Final = "title"
 ATTR_MESSAGE: Final = "message"
+ATTR_IMAGE: Final = "image"
+ATTR_CLICK_ACTION: Final = "click_action"

@@ -22,6 +22,14 @@ send:
         entity:
           domain: person
           multiple: true
+    image:
+      required: false
+      selector:
+        text:
+    click_action:
+      required: false
+      selector:
+        text:
 
 dismiss:
   fields:

@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.3.0
+
+- Buttons 1–3 with a type each: answer and close, answer and keep showing, or
+  open a page/URL (no answer). Notifications from 0.1/0.2 are shown in the new
+  layout and saved in it on the next change.
+- Appearance: accent color, camera snapshot or picture, tap target, lock
+  screen visibility, countdown until expiry, group.
+- Notification channels as their own entries (importance, vibration, LED);
+  changed or deleted channels are removed from the phones so Android creates
+  them again with the new settings.
+- The send action accepts `image` and `click_action`.
+
 ## 0.2.0
 
 - Repair issue when a renamed button is still used by an automation; it

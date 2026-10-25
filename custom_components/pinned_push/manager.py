@@ -30,22 +30,18 @@ from homeassistant.util import dt as dt_util, slugify
 from .const import (
     ACTION_PREFIX,
     AUTOMATION_DOMAIN,
-    CONF_ALARM_STREAM,
-    CONF_BUTTONS,
-    CONF_CHANNEL,
-    CONF_CONFIRM_TEXT,
+    BUTTON_KEEP_OPEN,
+    BUTTON_OPEN,
+    CHANNEL_ALARM,
     CONF_DEVICES,
     CONF_EXPIRE,
     CONF_ICON,
-    CONF_IMPORTANCE,
     CONF_MESSAGE,
     CONF_PERSONS,
     CONF_RESEND,
     CONF_TITLE,
     CONF_URGENT,
-    DEFAULT_CONFIRM_TEXT,
     DEFAULT_ICON,
-    DEFAULT_IMPORTANCE,
     DOMAIN,
     EVENT_ANSWER,
     EVENT_AUTOMATION_RELOADED,
@@ -65,8 +61,20 @@ from .const import (
     STATUS_IDLE,
     STATUS_OPEN,
     STORAGE_VERSION,
+    SUBENTRY_TYPE_CHANNEL,
     SUBENTRY_TYPE_NOTIFICATION,
     TAG_PREFIX,
+)
+from .model import (
+    Channel,
+    action_entries,
+    answer_labels,
+    appearance_data,
+    buttons_of,
+    channel_from_subentry,
+    channel_ref_of,
+    event_types_for,
+    legacy_channel,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -77,17 +85,7 @@ type PinnedPushConfigEntry = ConfigEntry[PinnedPushManager]
 type Listener = Callable[[str, dict[str, Any] | None], None]
 
 
-def button_labels_for(config: dict[str, Any]) -> list[str]:
-    """Return the button labels of a notification, confirm button first."""
-    return [
-        config.get(CONF_CONFIRM_TEXT) or DEFAULT_CONFIRM_TEXT,
-        *config.get(CONF_BUTTONS, []),
-    ]
-
-
-def event_types_for(config: dict[str, Any]) -> list[str]:
-    """Return the event types of a notification: its button labels plus expired."""
-    return [*button_labels_for(config), EVENT_TYPE_EXPIRED]
+__all__ = ["PinnedPushManager", "event_types_for"]
 
 
 def tag_for(subentry_id: str) -> str:
@@ -111,6 +109,8 @@ def _empty_state() -> dict[str, Any]:
         "message": None,
         "actions": [],
         "icon": None,
+        # Per-send overrides of the appearance (image, click_action)
+        "overrides": {},
         "answer": None,
         "resends": 0,
         # Button labels last seen, and labels removed by a rename that
@@ -149,6 +149,9 @@ class PinnedPushManager:
             hass, STORAGE_VERSION, f"{DOMAIN}.{entry.entry_id}"
         )
         self.states: dict[str, dict[str, Any]] = {}
+        # Per channel subentry: {"fingerprint": [...], "services": [...]}
+        # i.e. how the channel was created on which phones
+        self.channels: dict[str, dict[str, Any]] = {}
         self._listeners: dict[str, list[Listener]] = {}
         self._expiry_unsub: dict[str, CALLBACK_TYPE] = {}
         self._resend_unsub: dict[str, list[CALLBACK_TYPE]] = {}
@@ -158,7 +161,10 @@ class PinnedPushManager:
 
     async def async_setup(self) -> None:
         """Load state, listen to the Companion App and re-arm timers."""
-        stored = (await self._store.async_load() or {}).get("notifications", {})
+        data = await self._store.async_load() or {}
+        stored = data.get("notifications", {})
+        self.channels = data.get("channels", {})
+        self._sync_channels()
         notifications = self._notification_subentries()
         for subentry_id in notifications:
             state = _empty_state()
@@ -234,6 +240,70 @@ class PinnedPushManager:
             if sub.subentry_type == SUBENTRY_TYPE_NOTIFICATION
         }
 
+    def _channel_subentries(self) -> dict[str, ConfigSubentry]:
+        return {
+            sid: sub
+            for sid, sub in self.entry.subentries.items()
+            if sub.subentry_type == SUBENTRY_TYPE_CHANNEL
+        }
+
+    def _channel_for(self, config: dict[str, Any]) -> Channel | None:
+        """Return the managed or 0.2-style channel of a notification."""
+        ref = channel_ref_of(config)
+        if (sub := self._channel_subentries().get(ref)) is not None:
+            return channel_from_subentry(dict(sub.data))
+        return legacy_channel(config)
+
+    @callback
+    def _sync_channels(self) -> None:
+        """Recreate channels on the phones whose settings were changed.
+
+        Android fixes importance, vibration and LED when a channel is first
+        created. If they changed (or the channel was deleted), remove the
+        channel from every phone that has it; the next notification creates
+        it again with the new settings.
+        """
+        current = self._channel_subentries()
+        for sid in list(self.channels):
+            known = self.channels[sid]
+            old_name = (known.get("fingerprint") or [None])[0]
+            sub = current.get(sid)
+            new_fp = (
+                channel_from_subentry(dict(sub.data)).fingerprint() if sub else None
+            )
+            if new_fp == known.get("fingerprint"):
+                continue
+            if old_name and known.get("services"):
+                self.entry.async_create_background_task(
+                    self.hass,
+                    self._remove_channel(old_name, list(known["services"])),
+                    f"{DOMAIN} remove channel {old_name}",
+                )
+            if sub is None:
+                del self.channels[sid]
+            else:
+                self.channels[sid] = {"fingerprint": new_fp, "services": []}
+        for sid, sub in current.items():
+            self.channels.setdefault(
+                sid,
+                {
+                    "fingerprint": channel_from_subentry(dict(sub.data)).fingerprint(),
+                    "services": [],
+                },
+            )
+
+    async def _remove_channel(self, name: str, services: list[str]) -> None:
+        for service in services:
+            try:
+                await self.hass.services.async_call(
+                    NOTIFY_DOMAIN,
+                    service,
+                    {"message": "remove_channel", "data": {"channel": name}},
+                    blocking=True,
+                )
+            except HomeAssistantError as err:
+                _LOGGER.debug("Removing channel via notify.%s failed: %s", service, err)
+
     def config(self, subentry_id: str) -> dict[str, Any]:
         """Return the configuration of a notification."""
         return dict(self.entry.subentries[subentry_id].data)
@@ -270,7 +340,7 @@ class PinnedPushManager:
     # Storage
 
     def _data_to_store(self) -> dict[str, Any]:
-        return {"notifications": self.states}
+        return {"notifications": self.states, "channels": self.channels}
 
     @callback
     def _async_save(self) -> None:
@@ -283,7 +353,7 @@ class PinnedPushManager:
     def _track_labels(self, subentry_id: str) -> None:
         """Remember labels that disappeared from a notification."""
         state = self.states[subentry_id]
-        current = button_labels_for(self.config(subentry_id))
+        current = answer_labels(self.config(subentry_id))
         previous = state.get("labels")
         if previous is not None:
             removed = [label for label in previous if label not in current]
@@ -357,9 +427,7 @@ class PinnedPushManager:
                     translation_placeholders={
                         "notification": self.title(subentry_id),
                         "labels": ", ".join(still_used),
-                        "current": ", ".join(
-                            button_labels_for(self.config(subentry_id))
-                        ),
+                        "current": ", ".join(answer_labels(self.config(subentry_id))),
                         "automations": ", ".join(sorted(using)),
                     },
                 )
@@ -556,12 +624,22 @@ class PinnedPushManager:
             # Deliver at once, even while the phone is dozing
             data["ttl"] = 0
             data["priority"] = "high"
-        if config.get(CONF_ALARM_STREAM):
-            # Sound on the alarm stream, audible with Do Not Disturb
-            data["channel"] = "alarm_stream"
-        elif channel := (config.get(CONF_CHANNEL) or "").strip():
-            data["channel"] = channel
-            data["importance"] = config.get(CONF_IMPORTANCE) or DEFAULT_IMPORTANCE
+        if channel_ref_of(config) == CHANNEL_ALARM:
+            # Sound on the alarm stream, rings even on silent
+            data["channel"] = CHANNEL_ALARM
+        elif (channel := self._channel_for(config)) is not None:
+            data.update(channel.as_data())
+        expires = (
+            dt_util.parse_datetime(state["expires_at"]) if state["expires_at"] else None
+        )
+        data.update(
+            appearance_data(
+                config,
+                image=state.get("overrides", {}).get("image"),
+                click_action=state.get("overrides", {}).get("click_action"),
+                expires_at=expires.timestamp() if expires else None,
+            )
+        )
         return {"title": state["title"], "message": state["message"], "data": data}
 
     async def _push(
@@ -583,6 +661,12 @@ class PinnedPushManager:
                     err,
                 )
                 failed.append(service)
+        ref = channel_ref_of(self.config(subentry_id))
+        if ref in self.channels:
+            used = self.channels[ref].setdefault("services", [])
+            for service in services:
+                if service not in failed and service not in used:
+                    used.append(service)
         return failed
 
     async def _clear(self, subentry_id: str, services: list[str]) -> None:
@@ -631,6 +715,8 @@ class PinnedPushManager:
         title: str | None = None,
         message: str | None = None,
         persons: list[str] | None = None,
+        image: str | None = None,
+        click_action: str | None = None,
     ) -> dict[str, Any]:
         """Send (or replace) a notification."""
         config = self.config(subentry_id)
@@ -676,10 +762,15 @@ class PinnedPushManager:
                 "title": title if title is not None else config.get(CONF_TITLE),
                 "message": message if message is not None else config.get(CONF_MESSAGE),
                 "icon": config.get(CONF_ICON) or DEFAULT_ICON,
-                "actions": [
-                    {"action": action_id_for(subentry_id, send_id, i), "title": label}
-                    for i, label in enumerate(button_labels_for(config))
-                ],
+                "actions": action_entries(
+                    buttons_of(config),
+                    lambda i: action_id_for(subentry_id, send_id, i),
+                ),
+                "overrides": {
+                    k: v
+                    for k, v in (("image", image), ("click_action", click_action))
+                    if v is not None
+                },
                 "labels": old.get("labels"),
                 "stale_labels": old.get("stale_labels", []),
             }
@@ -777,10 +868,31 @@ class PinnedPushManager:
                 subentry_id, self._services_for_sender(sender, state["targets"])
             )
             return
-        labels = button_labels_for(self.config(subentry_id))
-        if index >= len(labels):
+        buttons = buttons_of(self.config(subentry_id))
+        if index >= len(buttons) or buttons[index].type == BUTTON_OPEN:
             return
-        button = labels[index]
+        button = buttons[index].label
+        answer = {
+            "button": button,
+            "button_index": index,
+            "confirmed": index == 0,
+            "closes": buttons[index].type != BUTTON_KEEP_OPEN,
+            "person": sender.person_id,
+            "person_name": sender.person_name,
+            "device": sender.device_name,
+            "send_id": state["send_id"],
+            "at": dt_util.utcnow().isoformat(),
+        }
+        if buttons[index].type == BUTTON_KEEP_OPEN:
+            # Report the press, keep the notification. Show it again on that
+            # phone in case Android removed it on the press.
+            state["answer"] = answer
+            self._async_save()
+            self._fire(subentry_id, button, answer)
+            await self._push(
+                subentry_id, state, self._services_for_sender(sender, state["targets"])
+            )
+            return
 
         self._cancel_timers(subentry_id)
         state["status"] = STATUS_ANSWERED
@@ -788,6 +900,7 @@ class PinnedPushManager:
             "button": button,
             "button_index": index,
             "confirmed": index == 0,
+            "closes": True,
             "person": sender.person_id,
             "person_name": sender.person_name,
             "device": sender.device_name,
@@ -850,6 +963,7 @@ class PinnedPushManager:
                 "button": None,
                 "button_index": None,
                 "confirmed": False,
+                "closes": True,
                 "person": None,
                 "person_name": None,
                 "device": None,

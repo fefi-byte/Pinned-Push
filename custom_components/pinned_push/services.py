@@ -18,6 +18,8 @@ from homeassistant.helpers import config_validation as cv, entity_registry as er
 import voluptuous as vol
 
 from .const import (
+    ATTR_CLICK_ACTION,
+    ATTR_IMAGE,
     ATTR_MESSAGE,
     ATTR_PERSONS,
     ATTR_TITLE,
@@ -35,6 +37,8 @@ SEND_SCHEMA = vol.Schema(
         vol.Optional(ATTR_PERSONS): vol.All(
             cv.ensure_list, [cv.entity_domain("person")]
         ),
+        vol.Optional(ATTR_IMAGE): cv.string,
+        vol.Optional(ATTR_CLICK_ACTION): cv.string,
     }
 )
 
@@ -83,6 +87,8 @@ def async_setup_services(hass: HomeAssistant) -> None:
                 title=call.data.get(ATTR_TITLE),
                 message=call.data.get(ATTR_MESSAGE),
                 persons=call.data.get(ATTR_PERSONS),
+                image=call.data.get(ATTR_IMAGE),
+                click_action=call.data.get(ATTR_CLICK_ACTION),
             )
         if call.return_response:
             return {"notifications": results}

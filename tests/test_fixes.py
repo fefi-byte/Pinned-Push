@@ -17,7 +17,7 @@ from pytest_homeassistant_custom_component.common import (
 
 from custom_components.pinned_push.const import DOMAIN
 
-from .conftest import USER_A, USER_B, WEBHOOK_A, make_entry, notification_data
+from .conftest import USER_A, USER_B, WEBHOOK_A, flow_input, make_entry
 from .test_notifications import (
     EVENT_ID,
     SENSOR_ID,
@@ -47,13 +47,15 @@ def _automation(event_type: str) -> dict:
     }
 
 
-async def _reconfigure(hass: HomeAssistant, entry: MockConfigEntry, **data) -> None:
+async def _reconfigure(
+    hass: HomeAssistant, entry: MockConfigEntry, labels: list[str]
+) -> None:
     result = await hass.config_entries.subentries.async_init(
         (entry.entry_id, "notification"),
         context={"source": SOURCE_RECONFIGURE, "subentry_id": "sub1"},
     )
     result = await hass.config_entries.subentries.async_configure(
-        result["flow_id"], {"name": "Frühschicht", **notification_data(**data)}
+        result["flow_id"], flow_input(buttons=[(lbl, "answer", "") for lbl in labels])
     )
     assert result["reason"] == "reconfigure_successful"
     await hass.async_block_till_done()
@@ -67,7 +69,7 @@ async def test_renamed_button_issue(
     await hass.async_block_till_done()
     issues = ir.async_get(hass)
 
-    await _reconfigure(hass, entry, buttons=["Später"])
+    await _reconfigure(hass, entry, ["Ja", "Später"])
     issue = issues.async_get_issue(DOMAIN, "renamed_buttons_sub1")
     assert issue is not None
     assert issue.translation_placeholders["labels"] == "Nein"
@@ -90,7 +92,7 @@ async def test_renamed_button_unused(
     """Renaming a button nobody uses raises no issue."""
     assert await async_setup_component(hass, "automation", _automation("Ja"))
     await hass.async_block_till_done()
-    await _reconfigure(hass, entry, buttons=["Später"])
+    await _reconfigure(hass, entry, ["Ja", "Später"])
     assert ir.async_get(hass).async_get_issue(DOMAIN, "renamed_buttons_sub1") is None
 
 
@@ -169,24 +171,18 @@ async def test_alarm_stream(
 
 
 async def test_delivery_in_flow(hass: HomeAssistant, entry: MockConfigEntry) -> None:
-    """The delivery section is stored flat; reconfigure shows it again."""
+    """The delivery section is stored flat."""
     result = await hass.config_entries.subentries.async_init(
         (entry.entry_id, "notification"), context={"source": "user"}
     )
-    data = {"name": "Müll", **notification_data()}
-    data["delivery"] = {
-        "urgent": False,
-        "alarm_stream": True,
-        "channel": " Müll ",
-        "importance": "max",
-    }
     result = await hass.config_entries.subentries.async_configure(
-        result["flow_id"], data
+        result["flow_id"],
+        flow_input(
+            name="Müll", delivery={"urgent": False, "channel_ref": "alarm_stream"}
+        ),
     )
     assert result["data"]["urgent"] is False
-    assert result["data"]["alarm_stream"] is True
-    assert result["data"]["channel"] == "Müll"
-    assert result["data"]["importance"] == "max"
+    assert result["data"]["channel_ref"] == "alarm_stream"
 
 
 async def test_stale_send_ignored(

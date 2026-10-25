@@ -30,9 +30,13 @@ still come back and expiry timers keep running.
 - **People, not services.** Pick `person` entities; the phones are taken from
   each person's tracked Companion App devices. Additional phones can be added
   directly.
-- **Your own buttons.** A confirm button plus up to two more. The button
-  labels are the event types of the event entity, so the automation editor
-  shows your labels.
+- **Your own buttons.** Up to three, each answering and closing, answering
+  but staying, or opening a page. The labels are the event types of the event
+  entity, so the automation editor shows your labels.
+- **Looks the way you want.** Color, camera snapshot or picture, tap target,
+  lock screen visibility, countdown and grouping.
+- **Notification channels managed in Home Assistant**, including importance,
+  vibration and LED – and recreated on the phones when you change them.
 - **Comes back when swiped away** – only on the phone that dismissed it.
 - **Cleared everywhere** as soon as one person answers.
 - **Optional expiry.** After the configured time the notification is removed
@@ -69,6 +73,8 @@ versions use a state trigger with a condition (see below).
 
 ## Setup
 
+### Notifications
+
 Open the Pinned Push entry and choose **Add notification**:
 
 | Field | Meaning |
@@ -77,22 +83,49 @@ Open the Pinned Push entry and choose **Add notification**:
 | People | Who receives it. Their phones come from the person's tracked devices |
 | Additional phones | Companion App devices that receive it in addition |
 | Title / Message | Default text; both can be overridden when sending |
-| Confirm button | Label of the first button, e.g. *Yes* |
-| Additional buttons | Up to two more, e.g. *No*, *Later* |
-| Icon | Notification icon (`mdi:` icons) |
+| Icon | Status bar icon (`mdi:` icons) |
 | Show again when swiped away | Re-show on the phone that dismissed it |
 | Expires after | Minutes until it is removed; 0 = never |
-| **Delivery and sound** (collapsed) | |
-| Deliver immediately | High priority, delivered at once even when the phone is dozing. On by default |
-| Audible with Do Not Disturb | Plays the sound on the alarm stream |
-| Notification channel | Android channel; its sound and vibration can be changed in Android's settings |
-| Channel importance | Only applied when Android creates the channel for the first time |
+
+**Buttons 1–3** – each with a label and what it does:
+
+| Type | Effect |
+|---|---|
+| Answer and close | Reported as an answer, removed from every phone |
+| Answer, keep showing | Reported as an answer, the notification stays (e.g. *Remind me later*) |
+| Open page (no answer) | Opens a dashboard path (`/lovelace/cameras`), a URL, `entityId:light.kitchen`, `app://package` or `settings://notification_history` |
+
+Button 1 is the confirmation and must report an answer. Android shows at
+most three buttons.
+
+**Appearance** (collapsed): accent color, a camera snapshot or picture
+(`/media/local/…`, `/local/…`, URL), the page opened when the notification is
+tapped, lock screen visibility (show / phone setting / hide), a countdown to
+the expiry time, and a group to stack notifications.
+
+**Delivery and sound** (collapsed): *Deliver immediately* (high priority,
+arrives at once even when the phone is dozing; on by default) and the
+notification channel: *Default*, *Alarm* (rings even on silent) or one of
+your own channels.
+
+### Notification channels
+
+Choose **Add notification channel** on the Pinned Push entry to create an
+Android channel with its own importance, vibration pattern
+(`0, 500, 250, 500`) and LED color, then pick it in any notification.
+
+Android fixes these settings when a channel is first created on a phone. When
+you change or delete a channel, Pinned Push removes it from every phone that
+has it; the next notification creates it again with the new settings. Sound
+settings changed on the phone for that channel are reset by this.
+
+### Entities
 
 Each notification gets:
 
-- `event.<name>` – fires on every answer. Event types are the button labels
-  plus `expired`. Attributes: `person`, `person_name`, `device`,
-  `button_index`, `confirmed`, `send_id`, `at`.
+- `event.<name>` – fires on every answer. Event types are the labels of the
+  answer buttons plus `expired`. Attributes: `person`, `person_name`,
+  `device`, `button_index`, `confirmed`, `closes`, `send_id`, `at`.
 - `sensor.<name>_status` – `idle`, `open`, `answered` or `expired`, with the
   last answer, who answered and on which phone, recipients, send number,
   number of re-sends and expiry time as attributes.
@@ -111,7 +144,8 @@ data:
 ```
 
 Optional fields: `title`, `message`, `persons` (replaces the configured
-recipients for this send). Sending again replaces the notification on the
+recipients for this send), `image` (e.g. `/api/camera_proxy/camera.door`) and
+`click_action`. Sending again replaces the notification on the
 phones; a button pressed on the old version no longer counts. With
 `response_variable` the action returns where it was sent and the `send_id`.
 
