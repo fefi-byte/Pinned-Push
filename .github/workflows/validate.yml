@@ -36,16 +36,18 @@ jobs:
           - name: latest
             python: "3.14"
             harness: pytest-homeassistant-custom-component
+            extra: ruff
           - name: oldest supported (2025.6)
             python: "3.13"
-            harness: pytest-homeassistant-custom-component==0.13.252 pycares<5
+            harness: pytest-homeassistant-custom-component==0.13.252
+            extra: pycares<5
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python }}
       - name: Install
-        run: pip install ${{ matrix.harness }} ruff
+        run: pip install "${{ matrix.harness }}" "${{ matrix.extra }}" ruff
       - name: Lint
         run: ruff check . && ruff format --check .
       - name: Test
