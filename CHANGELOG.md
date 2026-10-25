@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.5.0
+
+- Buttons are added one by one: the main form holds the mandatory button 1
+  (confirmation, answers and closes or answers and stays); a menu afterwards
+  adds, changes or removes up to two more buttons.
+- German UI says "Button" instead of "Knopf".
+
 ## 0.4.0
 
 - New button type *Close, show again after the minutes* (snooze). The minutes

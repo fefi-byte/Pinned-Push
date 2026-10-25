@@ -87,7 +87,9 @@ Open the Pinned Push entry and choose **Add notification**:
 | Show again when swiped away | Re-show on the phone that dismissed it |
 | Expires after | Minutes until it is removed; 0 = never |
 
-**Buttons 1–3** – each with a label and what it does:
+**Buttons** – button 1 (the confirmation) is part of the form. After saving
+the form, a menu lets you add up to two more buttons one by one, change or
+remove them, and save. Each button has a label and what it does:
 
 | Type | Effect |
 |---|---|

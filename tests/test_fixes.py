@@ -17,7 +17,15 @@ from pytest_homeassistant_custom_component.common import (
 
 from custom_components.pinned_push.const import DOMAIN
 
-from .conftest import USER_A, USER_B, WEBHOOK_A, flow_input, make_entry
+from .conftest import (
+    USER_A,
+    USER_B,
+    WEBHOOK_A,
+    button_input,
+    flow_input,
+    make_entry,
+    run_notification_flow,
+)
 from .test_notifications import (
     EVENT_ID,
     SENSOR_ID,
@@ -50,12 +58,22 @@ def _automation(event_type: str) -> dict:
 async def _reconfigure(
     hass: HomeAssistant, entry: MockConfigEntry, labels: list[str]
 ) -> None:
+    """Keep button 1, replace the old button 2 by the given labels."""
     result = await hass.config_entries.subentries.async_init(
         (entry.entry_id, "notification"),
         context={"source": SOURCE_RECONFIGURE, "subentry_id": "sub1"},
     )
     result = await hass.config_entries.subentries.async_configure(
-        result["flow_id"], flow_input(buttons=[(lbl, "answer", "") for lbl in labels])
+        result["flow_id"], flow_input(first=(labels[0], "answer"))
+    )
+    result = await hass.config_entries.subentries.async_configure(
+        result["flow_id"], {"next_step_id": "edit_button_2"}
+    )
+    result = await hass.config_entries.subentries.async_configure(
+        result["flow_id"], button_input(labels[1], remove=False)
+    )
+    result = await hass.config_entries.subentries.async_configure(
+        result["flow_id"], {"next_step_id": "finish"}
     )
     assert result["reason"] == "reconfigure_successful"
     await hass.async_block_till_done()
@@ -172,11 +190,9 @@ async def test_alarm_stream(
 
 async def test_delivery_in_flow(hass: HomeAssistant, entry: MockConfigEntry) -> None:
     """The delivery section is stored flat."""
-    result = await hass.config_entries.subentries.async_init(
-        (entry.entry_id, "notification"), context={"source": "user"}
-    )
-    result = await hass.config_entries.subentries.async_configure(
-        result["flow_id"],
+    result = await run_notification_flow(
+        hass,
+        entry.entry_id,
         flow_input(
             name="Müll", delivery={"urgent": False, "channel_ref": "alarm_stream"}
         ),

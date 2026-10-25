@@ -5,7 +5,6 @@ from __future__ import annotations
 from datetime import timedelta
 
 from freezegun.api import FrozenDateTimeFactory
-from homeassistant.config_entries import SOURCE_USER
 from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.data_entry_flow import FlowResultType
 from pytest_homeassistant_custom_component.common import (
@@ -13,7 +12,14 @@ from pytest_homeassistant_custom_component.common import (
     async_fire_time_changed,
 )
 
-from .conftest import USER_A, WEBHOOK_A, flow_input, make_entry
+from .conftest import (
+    USER_A,
+    WEBHOOK_A,
+    button_input,
+    flow_input,
+    make_entry,
+    run_notification_flow,
+)
 from .test_notifications import EVENT_ID, SENSOR_ID, _clears, _press, _pushes, _send
 
 BUTTONS = [
@@ -159,22 +165,12 @@ async def test_dismiss_snoozed(
 
 
 async def test_snooze_in_flow(hass: HomeAssistant, entry: MockConfigEntry) -> None:
-    """The minutes are stored for snooze buttons; button 1 cannot snooze."""
-    result = await hass.config_entries.subentries.async_init(
-        (entry.entry_id, "notification"), context={"source": SOURCE_USER}
-    )
-    result = await hass.config_entries.subentries.async_configure(
-        result["flow_id"],
-        flow_input(name="Müll", buttons=[("Später", "snooze", "", 5)]),
-    )
-    assert result["errors"] == {"button_1": "first_button_answers"}
-
-    result = await hass.config_entries.subentries.async_configure(
-        result["flow_id"],
-        flow_input(
-            name="Müll",
-            buttons=[("Erledigt", "answer", "", 5), ("Später", "snooze", "", 45.0)],
-        ),
+    """The minutes are stored for snooze buttons only."""
+    result = await run_notification_flow(
+        hass,
+        entry.entry_id,
+        flow_input(name="Müll", first=("Erledigt", "answer")),
+        [button_input("Später", "snooze", minutes=45.0)],
     )
     assert result["type"] is FlowResultType.CREATE_ENTRY
     assert result["data"]["button_list"] == [

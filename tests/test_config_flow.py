@@ -4,12 +4,13 @@ from __future__ import annotations
 
 from homeassistant.config_entries import SOURCE_RECONFIGURE, SOURCE_USER
 from homeassistant.core import HomeAssistant
-from homeassistant.data_entry_flow import FlowResultType
+from homeassistant.data_entry_flow import FlowResultType, InvalidData
+import pytest
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.pinned_push.const import DOMAIN
 
-from .conftest import flow_input
+from .conftest import button_input, flow_input, run_notification_flow
 
 
 async def test_user_flow(hass: HomeAssistant) -> None:
@@ -24,21 +25,13 @@ async def test_user_flow(hass: HomeAssistant) -> None:
 
 
 async def test_add_notification(hass: HomeAssistant, entry: MockConfigEntry) -> None:
-    """A notification is added as a subentry and gets its entities."""
-    result = await hass.config_entries.subentries.async_init(
-        (entry.entry_id, "notification"), context={"source": SOURCE_USER}
-    )
-    assert result["type"] is FlowResultType.FORM
-
-    result = await hass.config_entries.subentries.async_configure(
-        result["flow_id"],
+    """Main form with button 1, then buttons are added one by one."""
+    result = await run_notification_flow(
+        hass,
+        entry.entry_id,
         flow_input(
             name=" Müll ",
-            buttons=[
-                ("Erledigt", "answer", ""),
-                ("Morgen erinnern", "answer_keep_open", ""),
-                ("Kalender", "open", " /lovelace/kalender "),
-            ],
+            first=("Erledigt", "answer"),
             expire_minutes=30.0,
             appearance={
                 "color": [255, 128, 0],
@@ -46,6 +39,10 @@ async def test_add_notification(hass: HomeAssistant, entry: MockConfigEntry) -> 
                 "group": " Haus ",
             },
         ),
+        [
+            button_input("Morgen erinnern", "answer_keep_open"),
+            button_input("Kalender", "open", " /lovelace/kalender "),
+        ],
     )
     assert result["type"] is FlowResultType.CREATE_ENTRY
     assert result["title"] == "Müll"
@@ -63,9 +60,58 @@ async def test_add_notification(hass: HomeAssistant, entry: MockConfigEntry) -> 
     await hass.async_block_till_done()
 
     event = hass.states.get("event.mull")
-    # The page button is no answer, so no event type
     assert event.attributes["event_types"] == ["Erledigt", "Morgen erinnern", "expired"]
     assert hass.states.get("sensor.mull_status") is not None
+
+
+async def test_only_first_button(hass: HomeAssistant, entry: MockConfigEntry) -> None:
+    """A notification with just the mandatory button."""
+    result = await run_notification_flow(
+        hass, entry.entry_id, flow_input(name="Nur OK", first=("OK", "answer"))
+    )
+    assert result["data"]["button_list"] == [
+        {"label": "OK", "type": "answer", "target": ""}
+    ]
+
+
+async def test_menu_options(hass: HomeAssistant, entry: MockConfigEntry) -> None:
+    """The menu offers adding until three buttons exist, editing the extra ones."""
+    result = await hass.config_entries.subentries.async_init(
+        (entry.entry_id, "notification"), context={"source": SOURCE_USER}
+    )
+    result = await hass.config_entries.subentries.async_configure(
+        result["flow_id"], flow_input()
+    )
+    assert result["menu_options"] == ["add_button", "finish"]
+    for label in ("Nein", "Später"):
+        result = await hass.config_entries.subentries.async_configure(
+            result["flow_id"], {"next_step_id": "add_button"}
+        )
+        result = await hass.config_entries.subentries.async_configure(
+            result["flow_id"], button_input(label)
+        )
+    assert result["menu_options"] == ["edit_button_2", "edit_button_3", "finish"]
+    assert result["description_placeholders"]["buttons"] == "Ja, Nein, Später"
+
+    # Edit button 2, then remove button 3
+    result = await hass.config_entries.subentries.async_configure(
+        result["flow_id"], {"next_step_id": "edit_button_2"}
+    )
+    assert result["step_id"] == "edit_button_2"
+    result = await hass.config_entries.subentries.async_configure(
+        result["flow_id"], button_input("Nein danke", remove=False)
+    )
+    result = await hass.config_entries.subentries.async_configure(
+        result["flow_id"], {"next_step_id": "edit_button_3"}
+    )
+    result = await hass.config_entries.subentries.async_configure(
+        result["flow_id"], button_input("Später", remove=True)
+    )
+    assert result["menu_options"] == ["add_button", "edit_button_2", "finish"]
+    result = await hass.config_entries.subentries.async_configure(
+        result["flow_id"], {"next_step_id": "finish"}
+    )
+    assert [b["label"] for b in result["data"]["button_list"]] == ["Ja", "Nein danke"]
 
 
 async def test_add_notification_errors(
@@ -77,23 +123,8 @@ async def test_add_notification_errors(
     )
     for kwargs, field, error in (
         ({"persons": []}, "base", "no_recipients"),
-        ({"buttons": [("", "answer", "")]}, "button_1", "empty_button"),
-        (
-            {"buttons": [("Ja", "answer", ""), ("ja", "answer", "")]},
-            "base",
-            "duplicate_buttons",
-        ),
-        (
-            {"buttons": [("Ja", "answer", ""), ("Expired", "answer", "")]},
-            "base",
-            "reserved_button",
-        ),
-        (
-            {"buttons": [("Ja", "answer", ""), ("Karte", "open", "")]},
-            "button_2",
-            "missing_target",
-        ),
-        ({"buttons": [("Karte", "open", "/map")]}, "button_1", "first_button_answers"),
+        ({"first": ("", "answer")}, "button_1", "empty_button"),
+        ({"first": ("Expired", "answer")}, "base", "reserved_button"),
     ):
         result = await hass.config_entries.subentries.async_configure(
             result["flow_id"], flow_input(**kwargs)
@@ -101,43 +132,59 @@ async def test_add_notification_errors(
         assert result["type"] is FlowResultType.FORM
         assert result["errors"] == {field: error}
 
+    # Button 1 cannot be a page or snooze button: not offered at all
+    with pytest.raises(InvalidData):
+        await hass.config_entries.subentries.async_configure(
+            result["flow_id"], flow_input(first=("Karte", "open"))
+        )
+
+    result = await hass.config_entries.subentries.async_configure(
+        result["flow_id"], flow_input()
+    )
+    result = await hass.config_entries.subentries.async_configure(
+        result["flow_id"], {"next_step_id": "add_button"}
+    )
+    for button, field, error in (
+        (button_input(""), "label", "empty_label"),
+        (button_input("ja"), "base", "duplicate_buttons"),
+        (button_input("expired"), "base", "reserved_button"),
+        (button_input("Karte", "open"), "target", "missing_target"),
+    ):
+        result = await hass.config_entries.subentries.async_configure(
+            result["flow_id"], button
+        )
+        assert result["type"] is FlowResultType.FORM
+        assert result["errors"] == {field: error}
+
 
 async def test_reconfigure(hass: HomeAssistant, entry: MockConfigEntry) -> None:
-    """An 0.2 notification opens in the new layout and is saved in it."""
+    """An 0.2 notification opens with its buttons and is saved in the new format."""
     result = await hass.config_entries.subentries.async_init(
         (entry.entry_id, "notification"),
         context={"source": SOURCE_RECONFIGURE, "subentry_id": "sub1"},
     )
     assert result["type"] is FlowResultType.FORM
-    # The old confirm_text/buttons are shown as button 1 and 2
     schema = result["data_schema"].schema
-
-    def suggested(slot: str) -> dict:
-        inner = next(v for k, v in schema.items() if str(k) == slot).schema.schema
-        return {str(k): (k.description or {}).get("suggested_value") for k in inner}
-
-    assert suggested("button_1") == {
+    inner = next(v for k, v in schema.items() if str(k) == "button_1").schema.schema
+    assert {str(k): (k.description or {}).get("suggested_value") for k in inner} == {
         "label": "Ja",
         "type": "answer",
-        "target": "",
-        "minutes": 10,
-    }
-    assert suggested("button_2") == {
-        "label": "Nein",
-        "type": "answer",
-        "target": "",
-        "minutes": 10,
     }
 
     result = await hass.config_entries.subentries.async_configure(
-        result["flow_id"],
-        flow_input(
-            buttons=[
-                ("Ja", "answer", ""),
-                ("Nein", "answer", ""),
-                ("Später", "answer", ""),
-            ]
-        ),
+        result["flow_id"], flow_input()
+    )
+    # The old second button is there to edit
+    assert result["menu_options"] == ["add_button", "edit_button_2", "finish"]
+    assert result["description_placeholders"]["button_2"] == "Nein"
+    result = await hass.config_entries.subentries.async_configure(
+        result["flow_id"], {"next_step_id": "add_button"}
+    )
+    result = await hass.config_entries.subentries.async_configure(
+        result["flow_id"], button_input("Später", "snooze", minutes=20)
+    )
+    result = await hass.config_entries.subentries.async_configure(
+        result["flow_id"], {"next_step_id": "finish"}
     )
     assert result["type"] is FlowResultType.ABORT
     assert result["reason"] == "reconfigure_successful"
@@ -145,6 +192,12 @@ async def test_reconfigure(hass: HomeAssistant, entry: MockConfigEntry) -> None:
 
     state = hass.states.get("event.fruhschicht")
     assert state.attributes["event_types"] == ["Ja", "Nein", "Später", "expired"]
+    assert entry.subentries["sub1"].data["button_list"][2] == {
+        "label": "Später",
+        "type": "snooze",
+        "target": "",
+        "minutes": 20,
+    }
 
 
 async def test_add_channel(hass: HomeAssistant, entry: MockConfigEntry) -> None:

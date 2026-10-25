@@ -125,14 +125,12 @@ async def entry(hass: HomeAssistant, phones: None) -> MockConfigEntry:
 
 def flow_input(
     name: str = "Frühschicht",
-    buttons: list[tuple] | None = None,
+    first: tuple[str, str] = ("Ja", "answer"),
     appearance: dict[str, Any] | None = None,
     delivery: dict[str, Any] | None = None,
     **overrides: Any,
 ) -> dict[str, Any]:
-    """Return user input for the notification form (0.3 layout)."""
-    if buttons is None:
-        buttons = [("Ja", "answer", ""), ("Nein", "answer", "")]
+    """Return user input for the main notification form."""
     data: dict[str, Any] = {
         "name": name,
         "persons": ["person.felix"],
@@ -142,17 +140,47 @@ def flow_input(
         "icon": "mdi:coffee",
         "resend_on_dismiss": True,
         "expire_minutes": 0,
+        "button_1": {"label": first[0], "type": first[1]},
         "appearance": appearance or {},
         "delivery": delivery or {},
     }
-    for slot in ("button_1", "button_2", "button_3"):
-        data[slot] = {"label": "", "type": "answer", "target": ""}
-    for slot, button in zip(
-        ("button_1", "button_2", "button_3"), buttons, strict=False
-    ):
-        label, kind, target, *rest = button
-        data[slot] = {"label": label, "type": kind, "target": target}
-        if rest:
-            data[slot]["minutes"] = rest[0]
     data.update(overrides)
     return data
+
+
+def button_input(
+    label: str, kind: str = "answer", target: str = "", minutes: int = 10, **extra: Any
+) -> dict[str, Any]:
+    """Return user input for an additional button."""
+    return {"label": label, "type": kind, "target": target, "minutes": minutes, **extra}
+
+
+async def run_notification_flow(
+    hass: HomeAssistant,
+    entry_id: str,
+    main: dict[str, Any],
+    buttons: list[dict[str, Any]] | None = None,
+    subentry_id: str | None = None,
+) -> dict[str, Any]:
+    """Drive the notification flow: main form, add buttons, finish."""
+    context: dict[str, Any] = {"source": "user"}
+    if subentry_id:
+        context = {"source": "reconfigure", "subentry_id": subentry_id}
+    result = await hass.config_entries.subentries.async_init(
+        (entry_id, "notification"), context=context
+    )
+    result = await hass.config_entries.subentries.async_configure(
+        result["flow_id"], main
+    )
+    assert result["type"] == "menu", result
+    for button in buttons or []:
+        result = await hass.config_entries.subentries.async_configure(
+            result["flow_id"], {"next_step_id": "add_button"}
+        )
+        result = await hass.config_entries.subentries.async_configure(
+            result["flow_id"], button
+        )
+        assert result["type"] == "menu", result
+    return await hass.config_entries.subentries.async_configure(
+        result["flow_id"], {"next_step_id": "finish"}
+    )

@@ -40,44 +40,10 @@
           "sections": {
             "button_1": {
               "name": "Button 1 (confirm)",
-              "description": "The first button counts as confirmation.",
+              "description": "Required. The first button counts as confirmation. Add more buttons in the next step.",
               "data": {
                 "label": "Label",
-                "type": "What it does",
-                "target": "Page or URL",
-                "minutes": "Minutes until it shows again"
-              },
-              "data_description": {
-                "target": "Only for “Open page”: a dashboard path like /lovelace/cameras, a URL, entityId:light.kitchen, app://package or settings://notification_history.",
-                "minutes": "Only for “Close, show again after the minutes”."
-              }
-            },
-            "button_2": {
-              "name": "Button 2",
-              "description": "Optional. Leave the label empty to omit it.",
-              "data": {
-                "label": "Label",
-                "type": "What it does",
-                "target": "Page or URL",
-                "minutes": "Minutes until it shows again"
-              },
-              "data_description": {
-                "target": "Only for “Open page”: a dashboard path like /lovelace/cameras, a URL, entityId:light.kitchen, app://package or settings://notification_history.",
-                "minutes": "Only for “Close, show again after the minutes”."
-              }
-            },
-            "button_3": {
-              "name": "Button 3",
-              "description": "Optional. Android shows three buttons at most.",
-              "data": {
-                "label": "Label",
-                "type": "What it does",
-                "target": "Page or URL",
-                "minutes": "Minutes until it shows again"
-              },
-              "data_description": {
-                "target": "Only for “Open page”: a dashboard path like /lovelace/cameras, a URL, entityId:light.kitchen, app://package or settings://notification_history.",
-                "minutes": "Only for “Close, show again after the minutes”."
+                "type": "What it does"
               }
             },
             "appearance": {
@@ -138,47 +104,13 @@
           "sections": {
             "button_1": {
               "name": "Button 1 (confirm)",
-              "description": "The first button counts as confirmation.",
+              "description": "Required. The first button counts as confirmation. Add more buttons in the next step.",
               "data": {
                 "label": "Label",
-                "type": "What it does",
-                "target": "Page or URL",
-                "minutes": "Minutes until it shows again"
+                "type": "What it does"
               },
               "data_description": {
-                "target": "Only for “Open page”: a dashboard path like /lovelace/cameras, a URL, entityId:light.kitchen, app://package or settings://notification_history.",
-                "label": "Renaming a button changes its event type. Update automations that trigger on the old name.",
-                "minutes": "Only for “Close, show again after the minutes”."
-              }
-            },
-            "button_2": {
-              "name": "Button 2",
-              "description": "Optional. Leave the label empty to omit it.",
-              "data": {
-                "label": "Label",
-                "type": "What it does",
-                "target": "Page or URL",
-                "minutes": "Minutes until it shows again"
-              },
-              "data_description": {
-                "target": "Only for “Open page”: a dashboard path like /lovelace/cameras, a URL, entityId:light.kitchen, app://package or settings://notification_history.",
-                "label": "Renaming a button changes its event type. Update automations that trigger on the old name.",
-                "minutes": "Only for “Close, show again after the minutes”."
-              }
-            },
-            "button_3": {
-              "name": "Button 3",
-              "description": "Optional. Android shows three buttons at most.",
-              "data": {
-                "label": "Label",
-                "type": "What it does",
-                "target": "Page or URL",
-                "minutes": "Minutes until it shows again"
-              },
-              "data_description": {
-                "target": "Only for “Open page”: a dashboard path like /lovelace/cameras, a URL, entityId:light.kitchen, app://package or settings://notification_history.",
-                "label": "Renaming a button changes its event type. Update automations that trigger on the old name.",
-                "minutes": "Only for “Close, show again after the minutes”."
+                "label": "Renaming a button changes its event type. Update automations that trigger on the old name."
               }
             },
             "appearance": {
@@ -214,16 +146,73 @@
               }
             }
           }
+        },
+        "buttons": {
+          "title": "Buttons",
+          "description": "Buttons so far: {buttons}. Android shows three buttons at most.",
+          "menu_options": {
+            "add_button": "Add a button",
+            "edit_button_2": "Change or remove button 2 ({button_2})",
+            "edit_button_3": "Change or remove button 3 ({button_3})",
+            "finish": "Done – save"
+          }
+        },
+        "add_button": {
+          "title": "Add button {number}",
+          "description": "An additional, optional button.",
+          "data": {
+            "label": "Label",
+            "type": "What it does",
+            "target": "Page or URL",
+            "minutes": "Minutes until it shows again"
+          },
+          "data_description": {
+            "target": "Only for “Open page”: a dashboard path like /lovelace/cameras, a URL, entityId:light.kitchen, app://package or settings://notification_history.",
+            "minutes": "Only for “Close, show again after the minutes”."
+          }
+        },
+        "edit_button_2": {
+          "title": "Button {number}",
+          "description": "Change the button, or remove it.",
+          "data": {
+            "label": "Label",
+            "type": "What it does",
+            "target": "Page or URL",
+            "minutes": "Minutes until it shows again",
+            "remove": "Remove this button"
+          },
+          "data_description": {
+            "target": "Only for “Open page”: a dashboard path like /lovelace/cameras, a URL, entityId:light.kitchen, app://package or settings://notification_history.",
+            "minutes": "Only for “Close, show again after the minutes”.",
+            "label": "Renaming a button changes its event type. Update automations that trigger on the old name."
+          }
+        },
+        "edit_button_3": {
+          "title": "Button {number}",
+          "description": "Change the button, or remove it.",
+          "data": {
+            "label": "Label",
+            "type": "What it does",
+            "target": "Page or URL",
+            "minutes": "Minutes until it shows again",
+            "remove": "Remove this button"
+          },
+          "data_description": {
+            "target": "Only for “Open page”: a dashboard path like /lovelace/cameras, a URL, entityId:light.kitchen, app://package or settings://notification_history.",
+            "minutes": "Only for “Close, show again after the minutes”.",
+            "label": "Renaming a button changes its event type. Update automations that trigger on the old name."
+          }
         }
       },
       "error": {
         "empty_name": "Enter a name.",
-        "empty_button": "The first button needs a label.",
+        "empty_button": "Button 1 needs a label.",
         "no_recipients": "Select at least one person or phone.",
         "duplicate_buttons": "Every button needs a different label.",
         "reserved_button": "\"expired\" is reserved for notifications that time out.",
         "missing_target": "Enter the page or URL this button opens.",
-        "first_button_answers": "The first button confirms. It cannot only open a page or show the notification again later."
+        "first_button_answers": "Button 1 confirms: it answers and closes, or answers and stays.",
+        "empty_label": "Enter a label."
       },
       "abort": {
         "reconfigure_successful": "The notification was changed."

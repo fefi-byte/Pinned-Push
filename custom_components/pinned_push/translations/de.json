@@ -39,45 +39,11 @@
           },
           "sections": {
             "button_1": {
-              "name": "Knopf 1 (Bestätigen)",
-              "description": "Der erste Knopf gilt als Bestätigung.",
+              "name": "Button 1 (Bestätigung)",
+              "description": "Pflicht. Der erste Button gilt als Bestätigung. Weitere Buttons fügst du im nächsten Schritt hinzu.",
               "data": {
                 "label": "Beschriftung",
-                "type": "Was er tut",
-                "target": "Seite oder Adresse",
-                "minutes": "Minuten bis zur erneuten Anzeige"
-              },
-              "data_description": {
-                "target": "Nur für „Seite öffnen“: ein Dashboard-Pfad wie /lovelace/kameras, eine URL, entityId:light.kueche, app://paket oder settings://notification_history.",
-                "minutes": "Nur für „Schließen, nach den Minuten wieder anzeigen“."
-              }
-            },
-            "button_2": {
-              "name": "Knopf 2",
-              "description": "Optional. Beschriftung leer lassen, um ihn wegzulassen.",
-              "data": {
-                "label": "Beschriftung",
-                "type": "Was er tut",
-                "target": "Seite oder Adresse",
-                "minutes": "Minuten bis zur erneuten Anzeige"
-              },
-              "data_description": {
-                "target": "Nur für „Seite öffnen“: ein Dashboard-Pfad wie /lovelace/kameras, eine URL, entityId:light.kueche, app://paket oder settings://notification_history.",
-                "minutes": "Nur für „Schließen, nach den Minuten wieder anzeigen“."
-              }
-            },
-            "button_3": {
-              "name": "Knopf 3",
-              "description": "Optional. Android zeigt höchstens drei Knöpfe.",
-              "data": {
-                "label": "Beschriftung",
-                "type": "Was er tut",
-                "target": "Seite oder Adresse",
-                "minutes": "Minuten bis zur erneuten Anzeige"
-              },
-              "data_description": {
-                "target": "Nur für „Seite öffnen“: ein Dashboard-Pfad wie /lovelace/kameras, eine URL, entityId:light.kueche, app://paket oder settings://notification_history.",
-                "minutes": "Nur für „Schließen, nach den Minuten wieder anzeigen“."
+                "type": "Was er tut"
               }
             },
             "appearance": {
@@ -95,7 +61,7 @@
               "data_description": {
                 "camera": "Zeigt ein aktuelles Bild dieser Kamera. Hat Vorrang vor dem Bild.",
                 "image": "URL oder Pfad, z. B. /media/local/garten.jpg oder /local/logo.png.",
-                "click_action": "Dashboard-Pfad oder URL wie beim Knopf. Leer öffnet die App.",
+                "click_action": "Dashboard-Pfad oder URL wie beim Button. Leer öffnet die App.",
                 "countdown": "Nur wenn eine Ablaufzeit eingestellt ist.",
                 "group": "Benachrichtigungen mit derselben Gruppe werden zusammen angezeigt."
               }
@@ -113,7 +79,7 @@
               }
             }
           },
-          "description": "Die Benachrichtigung wird auf den Handys der gewählten Personen angeheftet und kommt nach dem Wegwischen wieder, bis jemand einen Knopf drückt."
+          "description": "Die Benachrichtigung wird auf den Handys der gewählten Personen angeheftet und kommt nach dem Wegwischen wieder, bis jemand einen Button drückt."
         },
         "reconfigure": {
           "title": "Benachrichtigung ändern",
@@ -137,48 +103,14 @@
           },
           "sections": {
             "button_1": {
-              "name": "Knopf 1 (Bestätigen)",
-              "description": "Der erste Knopf gilt als Bestätigung.",
+              "name": "Button 1 (Bestätigung)",
+              "description": "Pflicht. Der erste Button gilt als Bestätigung. Weitere Buttons fügst du im nächsten Schritt hinzu.",
               "data": {
                 "label": "Beschriftung",
-                "type": "Was er tut",
-                "target": "Seite oder Adresse",
-                "minutes": "Minuten bis zur erneuten Anzeige"
+                "type": "Was er tut"
               },
               "data_description": {
-                "target": "Nur für „Seite öffnen“: ein Dashboard-Pfad wie /lovelace/kameras, eine URL, entityId:light.kueche, app://paket oder settings://notification_history.",
-                "label": "Wird ein Knopf umbenannt, ändert sich sein Ereignistyp. Automationen, die auf den alten Namen reagieren, anpassen.",
-                "minutes": "Nur für „Schließen, nach den Minuten wieder anzeigen“."
-              }
-            },
-            "button_2": {
-              "name": "Knopf 2",
-              "description": "Optional. Beschriftung leer lassen, um ihn wegzulassen.",
-              "data": {
-                "label": "Beschriftung",
-                "type": "Was er tut",
-                "target": "Seite oder Adresse",
-                "minutes": "Minuten bis zur erneuten Anzeige"
-              },
-              "data_description": {
-                "target": "Nur für „Seite öffnen“: ein Dashboard-Pfad wie /lovelace/kameras, eine URL, entityId:light.kueche, app://paket oder settings://notification_history.",
-                "label": "Wird ein Knopf umbenannt, ändert sich sein Ereignistyp. Automationen, die auf den alten Namen reagieren, anpassen.",
-                "minutes": "Nur für „Schließen, nach den Minuten wieder anzeigen“."
-              }
-            },
-            "button_3": {
-              "name": "Knopf 3",
-              "description": "Optional. Android zeigt höchstens drei Knöpfe.",
-              "data": {
-                "label": "Beschriftung",
-                "type": "Was er tut",
-                "target": "Seite oder Adresse",
-                "minutes": "Minuten bis zur erneuten Anzeige"
-              },
-              "data_description": {
-                "target": "Nur für „Seite öffnen“: ein Dashboard-Pfad wie /lovelace/kameras, eine URL, entityId:light.kueche, app://paket oder settings://notification_history.",
-                "label": "Wird ein Knopf umbenannt, ändert sich sein Ereignistyp. Automationen, die auf den alten Namen reagieren, anpassen.",
-                "minutes": "Nur für „Schließen, nach den Minuten wieder anzeigen“."
+                "label": "Wird ein Button umbenannt, ändert sich sein Ereignistyp. Automationen, die auf den alten Namen reagieren, anpassen."
               }
             },
             "appearance": {
@@ -196,7 +128,7 @@
               "data_description": {
                 "camera": "Zeigt ein aktuelles Bild dieser Kamera. Hat Vorrang vor dem Bild.",
                 "image": "URL oder Pfad, z. B. /media/local/garten.jpg oder /local/logo.png.",
-                "click_action": "Dashboard-Pfad oder URL wie beim Knopf. Leer öffnet die App.",
+                "click_action": "Dashboard-Pfad oder URL wie beim Button. Leer öffnet die App.",
                 "countdown": "Nur wenn eine Ablaufzeit eingestellt ist.",
                 "group": "Benachrichtigungen mit derselben Gruppe werden zusammen angezeigt."
               }
@@ -214,16 +146,73 @@
               }
             }
           }
+        },
+        "buttons": {
+          "title": "Buttons",
+          "description": "Bisher: {buttons}. Android zeigt höchstens drei Buttons.",
+          "menu_options": {
+            "add_button": "Button hinzufügen",
+            "edit_button_2": "Button 2 ändern oder entfernen ({button_2})",
+            "edit_button_3": "Button 3 ändern oder entfernen ({button_3})",
+            "finish": "Fertig – speichern"
+          }
+        },
+        "add_button": {
+          "title": "Button {number} hinzufügen",
+          "description": "Ein zusätzlicher, optionaler Button.",
+          "data": {
+            "label": "Beschriftung",
+            "type": "Was er tut",
+            "target": "Seite oder Adresse",
+            "minutes": "Minuten bis zur erneuten Anzeige"
+          },
+          "data_description": {
+            "target": "Nur für „Seite öffnen“: ein Dashboard-Pfad wie /lovelace/kameras, eine URL, entityId:light.kueche, app://paket oder settings://notification_history.",
+            "minutes": "Nur für „Schließen, nach den Minuten wieder anzeigen“."
+          }
+        },
+        "edit_button_2": {
+          "title": "Button {number}",
+          "description": "Button ändern oder entfernen.",
+          "data": {
+            "label": "Beschriftung",
+            "type": "Was er tut",
+            "target": "Seite oder Adresse",
+            "minutes": "Minuten bis zur erneuten Anzeige",
+            "remove": "Diesen Button entfernen"
+          },
+          "data_description": {
+            "target": "Nur für „Seite öffnen“: ein Dashboard-Pfad wie /lovelace/kameras, eine URL, entityId:light.kueche, app://paket oder settings://notification_history.",
+            "minutes": "Nur für „Schließen, nach den Minuten wieder anzeigen“.",
+            "label": "Wird ein Button umbenannt, ändert sich sein Ereignistyp. Automationen, die auf den alten Namen reagieren, anpassen."
+          }
+        },
+        "edit_button_3": {
+          "title": "Button {number}",
+          "description": "Button ändern oder entfernen.",
+          "data": {
+            "label": "Beschriftung",
+            "type": "Was er tut",
+            "target": "Seite oder Adresse",
+            "minutes": "Minuten bis zur erneuten Anzeige",
+            "remove": "Diesen Button entfernen"
+          },
+          "data_description": {
+            "target": "Nur für „Seite öffnen“: ein Dashboard-Pfad wie /lovelace/kameras, eine URL, entityId:light.kueche, app://paket oder settings://notification_history.",
+            "minutes": "Nur für „Schließen, nach den Minuten wieder anzeigen“.",
+            "label": "Wird ein Button umbenannt, ändert sich sein Ereignistyp. Automationen, die auf den alten Namen reagieren, anpassen."
+          }
         }
       },
       "error": {
         "empty_name": "Bitte einen Namen eingeben.",
-        "empty_button": "Der erste Knopf braucht eine Beschriftung.",
+        "empty_button": "Button 1 braucht eine Beschriftung.",
         "no_recipients": "Mindestens eine Person oder ein Handy auswählen.",
-        "duplicate_buttons": "Jeder Knopf braucht eine eigene Beschriftung.",
+        "duplicate_buttons": "Jeder Button braucht eine eigene Beschriftung.",
         "reserved_button": "„expired“ ist für abgelaufene Benachrichtigungen reserviert.",
-        "missing_target": "Seite oder Adresse eingeben, die dieser Knopf öffnet.",
-        "first_button_answers": "Der erste Knopf bestätigt. Er kann nicht nur eine Seite öffnen oder die Benachrichtigung später wieder anzeigen."
+        "missing_target": "Seite oder Adresse eingeben, die dieser Button öffnet.",
+        "first_button_answers": "Button 1 bestätigt: Er antwortet und schließt, oder antwortet und bleibt stehen.",
+        "empty_label": "Bitte eine Beschriftung eingeben."
       },
       "abort": {
         "reconfigure_successful": "Die Benachrichtigung wurde geändert."
@@ -325,8 +314,8 @@
       "description": "Für folgende Empfänger wurde keine Companion App gefunden: {recipients}.\n\nBei einer Person unter Einstellungen → Personen das Handy bei den verfolgten Geräten auswählen oder die Companion App mit dem Benutzer dieser Person anmelden. Bei einem Handy prüfen, ob es in der Mobile-App-Integration noch registriert ist.\n\nDiese Meldung verschwindet beim nächsten erfolgreichen Senden."
     },
     "renamed_buttons": {
-      "title": "Pinned Push: umbenannter Knopf wird noch benutzt ({notification})",
-      "description": "Die Knöpfe {labels} gibt es bei {notification} nicht mehr, folgende Automationen benutzen sie aber noch: {automations}.\n\nDie Knöpfe heißen jetzt {current}. Automationen anpassen; diese Meldung verschwindet, sobald keine Automation die alten Namen mehr benutzt."
+      "title": "Pinned Push: umbenannter Button wird noch benutzt ({notification})",
+      "description": "Die Buttons {labels} gibt es bei {notification} nicht mehr, folgende Automationen benutzen sie aber noch: {automations}.\n\nDie Buttons heißen jetzt {current}. Automationen anpassen; diese Meldung verschwindet, sobald keine Automation die alten Namen mehr benutzt."
     },
     "resend_limit": {
       "title": "Pinned Push: {notification} verschwindet immer wieder",
