@@ -2,6 +2,7 @@
   "domain": "pinned_push",
   "name": "Pinned Push",
   "after_dependencies": ["mobile_app", "notify", "person"],
+  "categories": ["messaging_notifications.push_notifications"],
   "codeowners": ["@fefi-byte"],
   "config_flow": true,
   "documentation": "https://github.com/fefi-byte/pinned-push",
