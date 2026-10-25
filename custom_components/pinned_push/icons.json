@@ -11,6 +11,7 @@
         "state": {
           "idle": "mdi:pin-off-outline",
           "open": "mdi:pin",
+          "snoozed": "mdi:alarm-snooze",
           "answered": "mdi:check-circle-outline",
           "expired": "mdi:timer-off-outline"
         }

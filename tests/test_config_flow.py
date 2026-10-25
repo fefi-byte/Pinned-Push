@@ -116,8 +116,18 @@ async def test_reconfigure(hass: HomeAssistant, entry: MockConfigEntry) -> None:
         inner = next(v for k, v in schema.items() if str(k) == slot).schema.schema
         return {str(k): (k.description or {}).get("suggested_value") for k in inner}
 
-    assert suggested("button_1") == {"label": "Ja", "type": "answer", "target": ""}
-    assert suggested("button_2") == {"label": "Nein", "type": "answer", "target": ""}
+    assert suggested("button_1") == {
+        "label": "Ja",
+        "type": "answer",
+        "target": "",
+        "minutes": 10,
+    }
+    assert suggested("button_2") == {
+        "label": "Nein",
+        "type": "answer",
+        "target": "",
+        "minutes": 10,
+    }
 
     result = await hass.config_entries.subentries.async_configure(
         result["flow_id"],

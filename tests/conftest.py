@@ -125,7 +125,7 @@ async def entry(hass: HomeAssistant, phones: None) -> MockConfigEntry:
 
 def flow_input(
     name: str = "Frühschicht",
-    buttons: list[tuple[str, str, str]] | None = None,
+    buttons: list[tuple] | None = None,
     appearance: dict[str, Any] | None = None,
     delivery: dict[str, Any] | None = None,
     **overrides: Any,
@@ -147,9 +147,12 @@ def flow_input(
     }
     for slot in ("button_1", "button_2", "button_3"):
         data[slot] = {"label": "", "type": "answer", "target": ""}
-    for slot, (label, kind, target) in zip(
+    for slot, button in zip(
         ("button_1", "button_2", "button_3"), buttons, strict=False
     ):
+        label, kind, target, *rest = button
         data[slot] = {"label": label, "type": kind, "target": target}
+        if rest:
+            data[slot]["minutes"] = rest[0]
     data.update(overrides)
     return data

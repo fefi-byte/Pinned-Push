@@ -39,6 +39,7 @@ from .const import (
     BUTTON_ANSWER,
     BUTTON_OPEN,
     BUTTON_SLOTS,
+    BUTTON_SNOOZE,
     BUTTON_TYPES,
     CHANNEL_ALARM,
     CHANNEL_DEFAULT,
@@ -60,6 +61,7 @@ from .const import (
     CONF_LABEL,
     CONF_LED_COLOR,
     CONF_MESSAGE,
+    CONF_MINUTES,
     CONF_PERSONS,
     CONF_RESEND,
     CONF_TARGET,
@@ -72,11 +74,13 @@ from .const import (
     DEFAULT_EXPIRE,
     DEFAULT_ICON,
     DEFAULT_IMPORTANCE,
+    DEFAULT_SNOOZE_MINUTES,
     DEFAULT_VISIBILITY,
     DOMAIN,
     EVENT_TYPE_EXPIRED,
     IMPORTANCES,
     MAX_EXPIRE_MINUTES,
+    MAX_SNOOZE_MINUTES,
     MOBILE_APP_DOMAIN,
     PERSON_DOMAIN,
     SUBENTRY_TYPE_CHANNEL,
@@ -132,6 +136,15 @@ def _button_schema(first: bool) -> vol.Schema:
                 )
             ),
             vol.Optional(CONF_TARGET, default=""): TextSelector(),
+            vol.Required(CONF_MINUTES, default=DEFAULT_SNOOZE_MINUTES): NumberSelector(
+                NumberSelectorConfig(
+                    min=1,
+                    max=MAX_SNOOZE_MINUTES,
+                    step=1,
+                    mode=NumberSelectorMode.BOX,
+                    unit_of_measurement="min",
+                )
+            ),
         }
     )
 
@@ -254,6 +267,7 @@ def _suggested(data: dict[str, Any], name: str) -> dict[str, Any]:
                 CONF_LABEL: b.label,
                 CONF_TYPE: b.type,
                 CONF_TARGET: b.target,
+                CONF_MINUTES: b.minutes,
             }
     return values
 
@@ -284,14 +298,17 @@ def _validate(
         target = (raw.get(CONF_TARGET) or "").strip()
         if kind == BUTTON_OPEN and not target:
             errors[slot] = "missing_target"
-        buttons.append({CONF_LABEL: label, CONF_TYPE: kind, CONF_TARGET: target})
+        button = {CONF_LABEL: label, CONF_TYPE: kind, CONF_TARGET: target}
+        if kind == BUTTON_SNOOZE:
+            button[CONF_MINUTES] = int(raw.get(CONF_MINUTES) or DEFAULT_SNOOZE_MINUTES)
+        buttons.append(button)
 
     labels = [b[CONF_LABEL].casefold() for b in buttons]
     if EVENT_TYPE_EXPIRED in labels:
         errors["base"] = "reserved_button"
     elif len(set(labels)) != len(labels):
         errors["base"] = "duplicate_buttons"
-    if buttons and buttons[0][CONF_TYPE] == BUTTON_OPEN:
+    if buttons and buttons[0][CONF_TYPE] in (BUTTON_OPEN, BUTTON_SNOOZE):
         errors[BUTTON_SLOTS[0]] = "first_button_answers"
 
     appearance = user_input.get(CONF_APPEARANCE) or {}

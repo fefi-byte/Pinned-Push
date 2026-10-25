@@ -93,9 +93,10 @@ Open the Pinned Push entry and choose **Add notification**:
 |---|---|
 | Answer and close | Reported as an answer, removed from every phone |
 | Answer, keep showing | Reported as an answer, the notification stays (e.g. *Remind me later*) |
+| Close, show again after the minutes | Reported as an answer, removed from every phone, shown again after the button's minutes (snooze; survives restarts) |
 | Open page (no answer) | Opens a dashboard path (`/lovelace/cameras`), a URL, `entityId:light.kitchen`, `app://package` or `settings://notification_history` |
 
-Button 1 is the confirmation and must report an answer. Android shows at
+Button 1 is the confirmation: it answers and closes, or answers and stays. Android shows at
 most three buttons.
 
 **Appearance** (collapsed): accent color, a camera snapshot or picture
@@ -126,7 +127,7 @@ Each notification gets:
 - `event.<name>` – fires on every answer. Event types are the labels of the
   answer buttons plus `expired`. Attributes: `person`, `person_name`,
   `device`, `button_index`, `confirmed`, `closes`, `send_id`, `at`.
-- `sensor.<name>_status` – `idle`, `open`, `answered` or `expired`, with the
+- `sensor.<name>_status` – `idle`, `open`, `snoozed`, `answered` or `expired`, with the
   last answer, who answered and on which phone, recipients, send number,
   number of re-sends and expiry time as attributes.
 

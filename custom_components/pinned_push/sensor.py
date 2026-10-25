@@ -57,6 +57,7 @@ class PinnedPushStatusSensor(PinnedPushEntity, SensorEntity):
             "resends": state.get("resends"),
             "sent_at": state.get("sent_at"),
             "expires_at": state.get("expires_at"),
+            "snoozed_until": state.get("snoozed_until"),
             "recipients": [f"notify.{s}" for s in state.get("targets", [])],
             "answer": answer.get("button"),
             "answer_index": answer.get("button_index"),

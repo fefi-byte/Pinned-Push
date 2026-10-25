@@ -44,10 +44,12 @@
               "data": {
                 "label": "Label",
                 "type": "What it does",
-                "target": "Page or URL"
+                "target": "Page or URL",
+                "minutes": "Minutes until it shows again"
               },
               "data_description": {
-                "target": "Only for “Open page”: a dashboard path like /lovelace/cameras, a URL, entityId:light.kitchen, app://package or settings://notification_history."
+                "target": "Only for “Open page”: a dashboard path like /lovelace/cameras, a URL, entityId:light.kitchen, app://package or settings://notification_history.",
+                "minutes": "Only for “Close, show again after the minutes”."
               }
             },
             "button_2": {
@@ -56,10 +58,12 @@
               "data": {
                 "label": "Label",
                 "type": "What it does",
-                "target": "Page or URL"
+                "target": "Page or URL",
+                "minutes": "Minutes until it shows again"
               },
               "data_description": {
-                "target": "Only for “Open page”: a dashboard path like /lovelace/cameras, a URL, entityId:light.kitchen, app://package or settings://notification_history."
+                "target": "Only for “Open page”: a dashboard path like /lovelace/cameras, a URL, entityId:light.kitchen, app://package or settings://notification_history.",
+                "minutes": "Only for “Close, show again after the minutes”."
               }
             },
             "button_3": {
@@ -68,10 +72,12 @@
               "data": {
                 "label": "Label",
                 "type": "What it does",
-                "target": "Page or URL"
+                "target": "Page or URL",
+                "minutes": "Minutes until it shows again"
               },
               "data_description": {
-                "target": "Only for “Open page”: a dashboard path like /lovelace/cameras, a URL, entityId:light.kitchen, app://package or settings://notification_history."
+                "target": "Only for “Open page”: a dashboard path like /lovelace/cameras, a URL, entityId:light.kitchen, app://package or settings://notification_history.",
+                "minutes": "Only for “Close, show again after the minutes”."
               }
             },
             "appearance": {
@@ -136,11 +142,13 @@
               "data": {
                 "label": "Label",
                 "type": "What it does",
-                "target": "Page or URL"
+                "target": "Page or URL",
+                "minutes": "Minutes until it shows again"
               },
               "data_description": {
                 "target": "Only for “Open page”: a dashboard path like /lovelace/cameras, a URL, entityId:light.kitchen, app://package or settings://notification_history.",
-                "label": "Renaming a button changes its event type. Update automations that trigger on the old name."
+                "label": "Renaming a button changes its event type. Update automations that trigger on the old name.",
+                "minutes": "Only for “Close, show again after the minutes”."
               }
             },
             "button_2": {
@@ -149,11 +157,13 @@
               "data": {
                 "label": "Label",
                 "type": "What it does",
-                "target": "Page or URL"
+                "target": "Page or URL",
+                "minutes": "Minutes until it shows again"
               },
               "data_description": {
                 "target": "Only for “Open page”: a dashboard path like /lovelace/cameras, a URL, entityId:light.kitchen, app://package or settings://notification_history.",
-                "label": "Renaming a button changes its event type. Update automations that trigger on the old name."
+                "label": "Renaming a button changes its event type. Update automations that trigger on the old name.",
+                "minutes": "Only for “Close, show again after the minutes”."
               }
             },
             "button_3": {
@@ -162,11 +172,13 @@
               "data": {
                 "label": "Label",
                 "type": "What it does",
-                "target": "Page or URL"
+                "target": "Page or URL",
+                "minutes": "Minutes until it shows again"
               },
               "data_description": {
                 "target": "Only for “Open page”: a dashboard path like /lovelace/cameras, a URL, entityId:light.kitchen, app://package or settings://notification_history.",
-                "label": "Renaming a button changes its event type. Update automations that trigger on the old name."
+                "label": "Renaming a button changes its event type. Update automations that trigger on the old name.",
+                "minutes": "Only for “Close, show again after the minutes”."
               }
             },
             "appearance": {
@@ -211,7 +223,7 @@
         "duplicate_buttons": "Every button needs a different label.",
         "reserved_button": "\"expired\" is reserved for notifications that time out.",
         "missing_target": "Enter the page or URL this button opens.",
-        "first_button_answers": "The first button confirms and cannot only open a page."
+        "first_button_answers": "The first button confirms. It cannot only open a page or show the notification again later."
       },
       "abort": {
         "reconfigure_successful": "The notification was changed."
@@ -287,7 +299,8 @@
           "idle": "Idle",
           "open": "Open",
           "answered": "Answered",
-          "expired": "Expired"
+          "expired": "Expired",
+          "snoozed": "Snoozed"
         }
       }
     }
@@ -367,6 +380,7 @@
       "options": {
         "answer": "Answer and close",
         "answer_keep_open": "Answer, keep showing",
+        "snooze": "Close, show again after the minutes",
         "open": "Open page (no answer)"
       }
     },

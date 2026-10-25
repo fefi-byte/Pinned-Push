@@ -30,12 +30,14 @@ from .const import (
     CONF_IMPORTANCE,
     CONF_LABEL,
     CONF_LED_COLOR,
+    CONF_MINUTES,
     CONF_TARGET,
     CONF_TYPE,
     CONF_VIBRATION,
     CONF_VISIBILITY,
     DEFAULT_CONFIRM_TEXT,
     DEFAULT_IMPORTANCE,
+    DEFAULT_SNOOZE_MINUTES,
     DEFAULT_VISIBILITY,
     EVENT_TYPE_EXPIRED,
 )
@@ -48,6 +50,7 @@ class Button:
     label: str
     type: str
     target: str = ""
+    minutes: int = DEFAULT_SNOOZE_MINUTES
 
     @property
     def answers(self) -> bool:
@@ -63,6 +66,7 @@ def buttons_of(config: dict[str, Any]) -> list[Button]:
                 label=b[CONF_LABEL],
                 type=b.get(CONF_TYPE, BUTTON_ANSWER),
                 target=b.get(CONF_TARGET, ""),
+                minutes=int(b.get(CONF_MINUTES) or DEFAULT_SNOOZE_MINUTES),
             )
             for b in config[CONF_BUTTON_LIST]
         ]

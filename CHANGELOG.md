@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.4.0
+
+- New button type *Close, show again after the minutes* (snooze). The minutes
+  are set per button (1–1440). The notification disappears from every phone
+  and comes back after that time with the same text and buttons; the press is
+  reported like an answer. The snooze is stored and survives restarts; if it
+  ran out while Home Assistant was down, the notification comes back at start.
+  Expiry still applies while snoozed.
+- New status `snoozed` with the attribute `snoozed_until`.
+
 ## 0.3.0
 
 - Buttons 1–3 with a type each: answer and close, answer and keep showing, or

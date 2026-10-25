@@ -44,10 +44,12 @@
               "data": {
                 "label": "Beschriftung",
                 "type": "Was er tut",
-                "target": "Seite oder Adresse"
+                "target": "Seite oder Adresse",
+                "minutes": "Minuten bis zur erneuten Anzeige"
               },
               "data_description": {
-                "target": "Nur für „Seite öffnen“: ein Dashboard-Pfad wie /lovelace/kameras, eine URL, entityId:light.kueche, app://paket oder settings://notification_history."
+                "target": "Nur für „Seite öffnen“: ein Dashboard-Pfad wie /lovelace/kameras, eine URL, entityId:light.kueche, app://paket oder settings://notification_history.",
+                "minutes": "Nur für „Schließen, nach den Minuten wieder anzeigen“."
               }
             },
             "button_2": {
@@ -56,10 +58,12 @@
               "data": {
                 "label": "Beschriftung",
                 "type": "Was er tut",
-                "target": "Seite oder Adresse"
+                "target": "Seite oder Adresse",
+                "minutes": "Minuten bis zur erneuten Anzeige"
               },
               "data_description": {
-                "target": "Nur für „Seite öffnen“: ein Dashboard-Pfad wie /lovelace/kameras, eine URL, entityId:light.kueche, app://paket oder settings://notification_history."
+                "target": "Nur für „Seite öffnen“: ein Dashboard-Pfad wie /lovelace/kameras, eine URL, entityId:light.kueche, app://paket oder settings://notification_history.",
+                "minutes": "Nur für „Schließen, nach den Minuten wieder anzeigen“."
               }
             },
             "button_3": {
@@ -68,10 +72,12 @@
               "data": {
                 "label": "Beschriftung",
                 "type": "Was er tut",
-                "target": "Seite oder Adresse"
+                "target": "Seite oder Adresse",
+                "minutes": "Minuten bis zur erneuten Anzeige"
               },
               "data_description": {
-                "target": "Nur für „Seite öffnen“: ein Dashboard-Pfad wie /lovelace/kameras, eine URL, entityId:light.kueche, app://paket oder settings://notification_history."
+                "target": "Nur für „Seite öffnen“: ein Dashboard-Pfad wie /lovelace/kameras, eine URL, entityId:light.kueche, app://paket oder settings://notification_history.",
+                "minutes": "Nur für „Schließen, nach den Minuten wieder anzeigen“."
               }
             },
             "appearance": {
@@ -136,11 +142,13 @@
               "data": {
                 "label": "Beschriftung",
                 "type": "Was er tut",
-                "target": "Seite oder Adresse"
+                "target": "Seite oder Adresse",
+                "minutes": "Minuten bis zur erneuten Anzeige"
               },
               "data_description": {
                 "target": "Nur für „Seite öffnen“: ein Dashboard-Pfad wie /lovelace/kameras, eine URL, entityId:light.kueche, app://paket oder settings://notification_history.",
-                "label": "Wird ein Knopf umbenannt, ändert sich sein Ereignistyp. Automationen, die auf den alten Namen reagieren, anpassen."
+                "label": "Wird ein Knopf umbenannt, ändert sich sein Ereignistyp. Automationen, die auf den alten Namen reagieren, anpassen.",
+                "minutes": "Nur für „Schließen, nach den Minuten wieder anzeigen“."
               }
             },
             "button_2": {
@@ -149,11 +157,13 @@
               "data": {
                 "label": "Beschriftung",
                 "type": "Was er tut",
-                "target": "Seite oder Adresse"
+                "target": "Seite oder Adresse",
+                "minutes": "Minuten bis zur erneuten Anzeige"
               },
               "data_description": {
                 "target": "Nur für „Seite öffnen“: ein Dashboard-Pfad wie /lovelace/kameras, eine URL, entityId:light.kueche, app://paket oder settings://notification_history.",
-                "label": "Wird ein Knopf umbenannt, ändert sich sein Ereignistyp. Automationen, die auf den alten Namen reagieren, anpassen."
+                "label": "Wird ein Knopf umbenannt, ändert sich sein Ereignistyp. Automationen, die auf den alten Namen reagieren, anpassen.",
+                "minutes": "Nur für „Schließen, nach den Minuten wieder anzeigen“."
               }
             },
             "button_3": {
@@ -162,11 +172,13 @@
               "data": {
                 "label": "Beschriftung",
                 "type": "Was er tut",
-                "target": "Seite oder Adresse"
+                "target": "Seite oder Adresse",
+                "minutes": "Minuten bis zur erneuten Anzeige"
               },
               "data_description": {
                 "target": "Nur für „Seite öffnen“: ein Dashboard-Pfad wie /lovelace/kameras, eine URL, entityId:light.kueche, app://paket oder settings://notification_history.",
-                "label": "Wird ein Knopf umbenannt, ändert sich sein Ereignistyp. Automationen, die auf den alten Namen reagieren, anpassen."
+                "label": "Wird ein Knopf umbenannt, ändert sich sein Ereignistyp. Automationen, die auf den alten Namen reagieren, anpassen.",
+                "minutes": "Nur für „Schließen, nach den Minuten wieder anzeigen“."
               }
             },
             "appearance": {
@@ -211,7 +223,7 @@
         "duplicate_buttons": "Jeder Knopf braucht eine eigene Beschriftung.",
         "reserved_button": "„expired“ ist für abgelaufene Benachrichtigungen reserviert.",
         "missing_target": "Seite oder Adresse eingeben, die dieser Knopf öffnet.",
-        "first_button_answers": "Der erste Knopf bestätigt und kann nicht nur eine Seite öffnen."
+        "first_button_answers": "Der erste Knopf bestätigt. Er kann nicht nur eine Seite öffnen oder die Benachrichtigung später wieder anzeigen."
       },
       "abort": {
         "reconfigure_successful": "Die Benachrichtigung wurde geändert."
@@ -287,7 +299,8 @@
           "idle": "Bereit",
           "open": "Offen",
           "answered": "Beantwortet",
-          "expired": "Abgelaufen"
+          "expired": "Abgelaufen",
+          "snoozed": "Zurückgestellt"
         }
       }
     }
@@ -367,6 +380,7 @@
       "options": {
         "answer": "Antworten und schließen",
         "answer_keep_open": "Antworten, weiter anzeigen",
+        "snooze": "Schließen, nach den Minuten wieder anzeigen",
         "open": "Seite öffnen (keine Antwort)"
       }
     },

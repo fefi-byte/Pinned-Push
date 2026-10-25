@@ -30,8 +30,10 @@ from homeassistant.util import dt as dt_util, slugify
 from .const import (
     ACTION_PREFIX,
     AUTOMATION_DOMAIN,
+    BUTTON_ANSWER,
     BUTTON_KEEP_OPEN,
     BUTTON_OPEN,
+    BUTTON_SNOOZE,
     CHANNEL_ALARM,
     CONF_DEVICES,
     CONF_EXPIRE,
@@ -60,6 +62,7 @@ from .const import (
     STATUS_EXPIRED,
     STATUS_IDLE,
     STATUS_OPEN,
+    STATUS_SNOOZED,
     STORAGE_VERSION,
     SUBENTRY_TYPE_CHANNEL,
     SUBENTRY_TYPE_NOTIFICATION,
@@ -111,6 +114,8 @@ def _empty_state() -> dict[str, Any]:
         "icon": None,
         # Per-send overrides of the appearance (image, click_action)
         "overrides": {},
+        # Set while a snooze button keeps the notification hidden
+        "snoozed_until": None,
         "answer": None,
         "resends": 0,
         # Button labels last seen, and labels removed by a rename that
@@ -155,6 +160,7 @@ class PinnedPushManager:
         self._listeners: dict[str, list[Listener]] = {}
         self._expiry_unsub: dict[str, CALLBACK_TYPE] = {}
         self._resend_unsub: dict[str, list[CALLBACK_TYPE]] = {}
+        self._snooze_unsub: dict[str, CALLBACK_TYPE] = {}
 
     # ------------------------------------------------------------------
     # Lifecycle
@@ -211,7 +217,17 @@ class PinnedPushManager:
 
         now = dt_util.utcnow()
         for subentry_id, state in self.states.items():
-            if state["status"] != STATUS_OPEN or not state["expires_at"]:
+            if state["status"] == STATUS_SNOOZED:
+                until = dt_util.parse_datetime(state.get("snoozed_until") or "")
+                if until is None or until <= now:
+                    # Snooze ran out while Home Assistant was down
+                    self.hass.async_create_task(self._async_unsnooze(subentry_id))
+                else:
+                    self._schedule_unsnooze(subentry_id, until)
+            if (
+                state["status"] not in (STATUS_OPEN, STATUS_SNOOZED)
+                or not state["expires_at"]
+            ):
                 continue
             expires_at = dt_util.parse_datetime(state["expires_at"])
             if expires_at is None or expires_at <= now:
@@ -231,6 +247,9 @@ class PinnedPushManager:
             for unsub in unsubs:
                 unsub()
         self._resend_unsub.clear()
+        for unsub in self._snooze_unsub.values():
+            unsub()
+        self._snooze_unsub.clear()
         await self._store.async_save(self._data_to_store())
 
     def _notification_subentries(self) -> dict[str, ConfigSubentry]:
@@ -691,6 +710,8 @@ class PinnedPushManager:
     def _cancel_timers(self, subentry_id: str) -> None:
         if unsub := self._expiry_unsub.pop(subentry_id, None):
             unsub()
+        if unsub := self._snooze_unsub.pop(subentry_id, None):
+            unsub()
         for unsub in self._resend_unsub.pop(subentry_id, []):
             unsub()
 
@@ -704,6 +725,29 @@ class PinnedPushManager:
         self._expiry_unsub[subentry_id] = async_track_point_in_utc_time(
             self.hass, _fire, when
         )
+
+    @callback
+    def _schedule_unsnooze(self, subentry_id: str, when: datetime) -> None:
+        @callback
+        def _fire(_now: datetime) -> None:
+            self._snooze_unsub.pop(subentry_id, None)
+            self.hass.async_create_task(self._async_unsnooze(subentry_id))
+
+        self._snooze_unsub[subentry_id] = async_track_point_in_utc_time(
+            self.hass, _fire, when
+        )
+
+    async def _async_unsnooze(self, subentry_id: str) -> None:
+        """Show a snoozed notification again."""
+        state = self.states.get(subentry_id)
+        if state is None or state["status"] != STATUS_SNOOZED:
+            return
+        state["status"] = STATUS_OPEN
+        state["snoozed_until"] = None
+        state["resends"] = 0
+        await self._push(subentry_id, state, state["targets"])
+        self._async_save()
+        self._notify(subentry_id)
 
     # ------------------------------------------------------------------
     # Public operations
@@ -806,8 +850,9 @@ class PinnedPushManager:
     async def async_dismiss(self, subentry_id: str) -> None:
         """Remove a notification from all phones without an answer."""
         state = self.states.get(subentry_id)
-        if state is None or state["status"] != STATUS_OPEN:
+        if state is None or state["status"] not in (STATUS_OPEN, STATUS_SNOOZED):
             return
+        state["snoozed_until"] = None
         self._cancel_timers(subentry_id)
         state["status"] = STATUS_IDLE
         state["expires_at"] = None
@@ -876,13 +921,29 @@ class PinnedPushManager:
             "button": button,
             "button_index": index,
             "confirmed": index == 0,
-            "closes": buttons[index].type != BUTTON_KEEP_OPEN,
+            "closes": buttons[index].type == BUTTON_ANSWER,
+            "snoozed_until": None,
             "person": sender.person_id,
             "person_name": sender.person_name,
             "device": sender.device_name,
             "send_id": state["send_id"],
             "at": dt_util.utcnow().isoformat(),
         }
+        if buttons[index].type == BUTTON_SNOOZE:
+            # Hide it everywhere, show it again after the button's minutes.
+            # Stored, so the snooze survives a restart.
+            until = dt_util.utcnow() + timedelta(minutes=buttons[index].minutes)
+            answer["snoozed_until"] = until.isoformat()
+            for unsub in self._resend_unsub.pop(subentry_id, []):
+                unsub()
+            state["status"] = STATUS_SNOOZED
+            state["snoozed_until"] = until.isoformat()
+            state["answer"] = answer
+            self._schedule_unsnooze(subentry_id, until)
+            await self._clear(subentry_id, state["targets"])
+            self._async_save()
+            self._fire(subentry_id, button, answer)
+            return
         if buttons[index].type == BUTTON_KEEP_OPEN:
             # Report the press, keep the notification. Show it again on that
             # phone in case Android removed it on the press.
@@ -901,6 +962,7 @@ class PinnedPushManager:
             "button_index": index,
             "confirmed": index == 0,
             "closes": True,
+            "snoozed_until": None,
             "person": sender.person_id,
             "person_name": sender.person_name,
             "device": sender.device_name,
@@ -949,10 +1011,11 @@ class PinnedPushManager:
 
     async def _async_expire(self, subentry_id: str) -> None:
         state = self.states.get(subentry_id)
-        if state is None or state["status"] != STATUS_OPEN:
+        if state is None or state["status"] not in (STATUS_OPEN, STATUS_SNOOZED):
             return
         self._cancel_timers(subentry_id)
         state["status"] = STATUS_EXPIRED
+        state["snoozed_until"] = None
         state["expires_at"] = None
         await self._clear(subentry_id, state["targets"])
         self._async_save()
@@ -964,6 +1027,7 @@ class PinnedPushManager:
                 "button_index": None,
                 "confirmed": False,
                 "closes": True,
+                "snoozed_until": None,
                 "person": None,
                 "person_name": None,
                 "device": None,
